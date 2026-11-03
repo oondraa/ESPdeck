@@ -1,0 +1,380 @@
+---
+import {
+  BUDGET,
+  ENCODER_TIMING,
+  GPIO_ALLOCATION,
+  GPIO_AVOIDED,
+  GPIO_RESERVE,
+  I2C_TIMING,
+  OPERATING,
+  PAD_RULES,
+} from '../data/espdeck';
+---
+
+<section class="section specs" id="parametry" aria-labelledby="specs-title">
+  <div class="wrap">
+    <div class="sp-head">
+      <h2 id="specs-title" class="h2">Špička 0,4 A z USB, logika všude 3,3 V</h2>
+      <p class="lede sp-lede">
+        Rozhodují dvě omezení: vstupy ESP32 nesnesou 5 V a doba náběhu I²C s 10kΩ pull-upy.
+        Všechny pull-upy v systému končí na +3V3, takže na žádný pin nepřijde víc než 3,3 V.
+      </p>
+    </div>
+
+    <p class="caution">
+      <strong>USB 5 V a pin V5 jsou na desce spojené napřímo.</strong>
+      Nikdy nepřipojuj externí 5V zdroj na V5 a současně USB z počítače. Pro ladění s externím zdrojem přeruš
+      napájecí vodič v USB kabelu.
+    </p>
+
+    <div class="sp-tables">
+      <div class="table-scroll" data-reveal-table>
+        <table class="dtable">
+          <caption>Provozní podmínky systému (kap. 3.2)</caption>
+          <thead>
+            <tr>
+              <th scope="col">Parametr</th>
+              <th scope="col" class="r">Min</th>
+              <th scope="col" class="r">Typ</th>
+              <th scope="col" class="r">Max</th>
+              <th scope="col">Jedn.</th>
+              <th scope="col">Poznámka</th>
+            </tr>
+          </thead>
+          <tbody>
+            {OPERATING.map((r) => (
+              <tr>
+                <th scope="row">{r.param}</th>
+                <td class="mono r">{r.min}</td>
+                <td class="mono r">{r.typ}</td>
+                <td class="mono r">{r.max}</td>
+                <td class="mono">{r.unit}</td>
+                <td class="muted">{r.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="budget" data-reveal-table>
+        <div class="table-scroll">
+          <table class="dtable">
+            <caption>Proudový rozpočet (kap. 3.3)</caption>
+            <thead>
+              <tr>
+                <th scope="col">Spotřebič</th>
+                <th scope="col">Typicky</th>
+                <th scope="col">Špička</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BUDGET.map((r, i) => (
+                <tr class:list={{ total: i === BUDGET.length - 1 }}>
+                  <th scope="row">{r.item}<span class="src">{r.source !== '–' ? r.source : ''}</span></th>
+                  <td class="mono">{r.typ}</td>
+                  <td class="mono">{r.peak}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="formula">
+          <span class="mono">(5,0 − 3,3) V × 0,4 A ≈ 0,7 W</span>
+          Tolik ztratí lineární regulátor ve špičce. V krabičce mu nech větrání a OLED nedávej přímo nad něj.
+        </p>
+      </div>
+    </div>
+
+    <div class="discs">
+      <details class="disc">
+        <summary><span>I²C: 100 kHz s pull-upy z OLED, 400 kHz až s 4,7 kΩ</span><span class="disc-mark" aria-hidden="true">+</span></summary>
+        <div class="disc-body">
+          <p class="eq mono">t<sub>r</sub> = 0,8473 · R<sub>p</sub> · C<sub>b</sub></p>
+          <p class="muted">
+            Doba náběhu hrany (30 % → 70 %) závisí na pull-upu a kapacitě sběrnice. Kapacitu C<sub>b</sub> je potřeba
+            ověřit na reálném kabelu osciloskopem.
+          </p>
+          <div class="table-scroll">
+            <table class="dtable">
+              <thead>
+                <tr>
+                  <th scope="col">Varianta</th>
+                  <th scope="col">R<sub>p</sub></th>
+                  <th scope="col">C<sub>b</sub> (odhad)</th>
+                  <th scope="col">t<sub>r</sub></th>
+                  <th scope="col">100 kHz (1000 ns)</th>
+                  <th scope="col">400 kHz (300 ns)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {I2C_TIMING.map((r) => (
+                  <tr>
+                    <th scope="row">{r.variant}</th>
+                    <td class="mono">{r.rp}</td>
+                    <td class="mono">{r.cb}</td>
+                    <td class="mono">{r.tr}</td>
+                    <td class:list={['mono', r.k100 ? 'ok' : 'bad']}>{r.k100 ? 'vyhovuje' : 'nevyhovuje'}</td>
+                    <td class:list={['mono', r.k400 ? 'ok' : 'bad']}>{r.k400 ? 'vyhovuje' : 'nevyhovuje'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Doporučení: firmware na 100 kHz. Pro rychlejší překreslování (400 kHz) přidej na SDA a SCL u ESP32 rezistory
+            4,7 kΩ proti 3V3 (R7, R8). Rozhodnutí mezi 100 a 400 kHz je otevřené.
+          </p>
+        </div>
+      </details>
+
+      <details class="disc">
+        <summary><span>RC filtr enkodéru: náběh 277 µs, sestup 139 µs</span><span class="disc-mark" aria-hidden="true">+</span></summary>
+        <div class="disc-body">
+          <p>
+            Každý kanál (S1, S2, u řady modulů i Key) má kontakt proti GND, pull-up R<sub>pu</sub> proti pinu „5V“
+            (v projektu 3V3), sériový rezistor R<sub>s</sub> k výstupu a kondenzátor C z výstupu na GND. Prodejce hodnoty
+            neuvádí. U těchto modulů bývá 10 kΩ / 10 kΩ / 10 nF, <strong>před finálním návrhem je potřeba je změřit</strong>
+            (multimetr na odpor, LCR metr na C).
+          </p>
+          <div class="eqs mono">
+            <p>τ↓ = R<sub>s</sub>·C = 100 µs</p>
+            <p>τ↑ = (R<sub>pu</sub> + R<sub>s</sub>)·C = 200 µs</p>
+            <p>t↓(V<sub>IL</sub>) = τ↓·ln 4 ≈ 139 µs</p>
+            <p>t↑(V<sub>IH</sub>) = τ↑·ln 4 ≈ 277 µs</p>
+          </div>
+          <div class="table-scroll">
+            <table class="dtable">
+              <thead>
+                <tr><th scope="col">Parametr</th><th scope="col">Hodnota</th><th scope="col">Výpočet / poznámka</th></tr>
+              </thead>
+              <tbody>
+                {ENCODER_TIMING.map((r) => (
+                  <tr><th scope="row">{r.k}</th><td class="mono">{r.v}</td><td class="muted">{r.note}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <ul class="notes">
+            <li>Interní pull-upy ESP32 na S1/S2 nezapínej. Modul je má a souběh s RC filtrem zhoršuje úroveň log. 0.</li>
+            <li>Oba kanály čti na přerušení CHANGE a dekóduj stavovou tabulkou (Grayův kód, 16 stavů). Neplatné přechody tabulka ignoruje.</li>
+            <li>Bez zátěže CPU to zvládne hardwarový čítač PCNT s glitch filtrem (knihovna ESP32Encoder).</li>
+            <li>20 pulzů a 20 aretací: 4 hrany na cvaknutí, ve firmwaru čítač děl 4. Směr obrátíš prohozením S1 a S2.</li>
+            <li>Key je aktivní v log. 0, softwarový debounce 30 ms, ve firmwaru INPUT_PULLUP.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="disc">
+        <summary><span>Plošky: Ø 12 mm, 510 Ω v sérii, kryt do 3 mm bez mezery</span><span class="disc-mark" aria-hidden="true">+</span></summary>
+        <div class="disc-body">
+          <p>
+            ESP32 periodicky nabíjí a vybíjí kapacitu pinu a počítá cykly. Prst přidá kapacitu a počet cyklů klesne.
+            Čím menší parazitní kapacita vedení (C<sub>p</sub>), tím větší relativní změna při dotyku. Hodnoty vychází
+            z Touch Sensor Application Note od Espressifu.
+          </p>
+          <div class="table-scroll">
+            <table class="dtable">
+              <thead>
+                <tr><th scope="col">Parametr</th><th scope="col">V projektu</th><th scope="col">Rozsah dle Espressif</th></tr>
+              </thead>
+              <tbody>
+                {PAD_RULES.map((r) => (
+                  <tr><th scope="row">{r.param}</th><td>{r.project}</td><td class="muted">{r.espressif}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div class="variants">
+            <div>
+              <h4>Prototyp</h4>
+              <p class="muted">Samolepicí měděná páska nebo plošky na univerzální DPS. Tenký vodič (0,25 mm²), každý zvlášť, nesvazovat s I²C. Na ladění prahů na stole.</p>
+            </div>
+            <div>
+              <h4>Finální DPS</h4>
+              <p class="muted">Měděná ploška na straně TOP, spoj na BOTTOM, max 1 průchodka na okraji plošky. Rezistor co nejblíž pinu modulu.</p>
+            </div>
+          </div>
+          <ul class="notes">
+            <li>Cílová citlivost (pokles při dotyku / klidová hodnota) přes 3 %, odstup signál/šum přes 5 : 1.</li>
+            <li>Přeslech mezi kanály nesmí překročit práh sousední plošky.</li>
+            <li>Wi-Fi zvyšuje rozptyl měření. Práh kalibruj až po zapnutí Wi-Fi a čti filtrovaně.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="disc">
+        <summary><span>Alokace GPIO: 11 pinů, žádný strapping pin pro dotyk</span><span class="disc-mark" aria-hidden="true">+</span></summary>
+        <div class="disc-body">
+          <p>
+            Ze 10 touch kanálů ESP32 jde bezpečně použít právě 6. Zbylé čtyři (T1, T2, T3, T5) sdílí piny s bootovací
+            logikou. I²C je fyzicky na opačné straně desky než plošky.
+          </p>
+          <div class="table-scroll">
+            <table class="dtable">
+              <thead>
+                <tr>
+                  <th scope="col">GPIO</th><th scope="col">Strana</th><th scope="col">Síť</th>
+                  <th scope="col">Směr</th><th scope="col">Pull-up</th><th scope="col">Proč tento pin</th>
+                </tr>
+              </thead>
+              <tbody>
+                {GPIO_ALLOCATION.map((r) => (
+                  <tr>
+                    <th scope="row" class="mono">{r.gpio} <span class="muted">{r.label}</span></th>
+                    <td>{r.side}</td>
+                    <td class="mono">{r.net}</td>
+                    <td>{r.dir}</td>
+                    <td>{r.pullup}</td>
+                    <td class="muted">{r.why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <h4>Piny, kterým se projekt vyhýbá</h4>
+          <dl class="avoid">
+            {GPIO_AVOIDED.map((r) => (
+              <div><dt class="mono">GPIO {r.k}</dt><dd class="muted">{r.v}</dd></div>
+            ))}
+          </dl>
+          <ul class="notes">
+            <li>Kanály T5–T9 jsou podle Espressifu méně citlivé na proudové změny jiných RTC pinů, proto je 5 ze 6 plošek na T4 a T6–T9.</li>
+            <li>Na RTC piny vedle dotyku nedávej silné výstupy (LED přímo z pinu, PWM). ENC_A/B na GPIO25/26 jsou RTC piny, ale jen jako vstupy.</li>
+            <li>Na sousední piny dotykových kanálů nepřiřazuj vysokofrekvenční signály (SPI, I²C, PWM).</li>
+            <li>Rezerva pro rozšíření: {GPIO_RESERVE}</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sp-head {
+    display: grid;
+    gap: 24px;
+  }
+  .sp-lede {
+    max-width: 62ch;
+  }
+  .caution {
+    margin-top: 40px;
+    padding: 18px 20px;
+    border-left: 3px solid var(--copper);
+    background: var(--bg-2);
+    max-width: 78ch;
+    font-size: 0.9375rem;
+  }
+  .sp-tables {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(32px, 4vw, 64px);
+    margin-top: clamp(48px, 6vw, 80px);
+    align-items: start;
+  }
+  .dtable th[scope='row'] {
+    font-weight: 500;
+  }
+  .src {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--fg-3);
+    font-weight: 400;
+  }
+  .total th,
+  .total td {
+    font-weight: 700 !important;
+    color: var(--fg);
+    border-top: 1px solid var(--fg) !important;
+  }
+  .formula {
+    margin-top: 20px;
+    font-size: 0.875rem;
+    color: var(--fg-2);
+    display: grid;
+    gap: 6px;
+  }
+  .formula .mono {
+    color: var(--fg);
+    font-size: 1rem;
+  }
+  .discs {
+    margin-top: clamp(64px, 8vw, 112px);
+  }
+  .eq {
+    font-size: var(--step-2);
+    color: var(--fg);
+  }
+  .eqs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 6px 40px;
+    font-size: 0.9375rem;
+  }
+  .ok {
+    color: var(--fg);
+  }
+  .bad {
+    color: var(--copper-2);
+    font-weight: 600;
+  }
+  :global(:root[data-theme='light']) .bad {
+    color: var(--copper);
+  }
+  .notes {
+    margin: 0;
+    padding-left: 1.1em;
+    display: grid;
+    gap: 8px;
+    color: var(--fg-2);
+    font-size: 0.9375rem;
+    max-width: 80ch;
+  }
+  .notes li::marker {
+    color: var(--copper);
+  }
+  .variants {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .variants h4,
+  .disc-body h4 {
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .avoid {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 32px;
+  }
+  .avoid dt {
+    color: var(--copper-2);
+    font-size: 0.8125rem;
+  }
+  :global(:root[data-theme='light']) .avoid dt {
+    color: var(--copper);
+  }
+  .avoid dd {
+    margin: 2px 0 0;
+    font-size: 0.875rem;
+  }
+  .disc-body > p {
+    max-width: 80ch;
+  }
+
+  @media (max-width: 960px) {
+    .sp-tables {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .variants,
+    .avoid,
+    .eqs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Inside from '../components/Inside.astro';
+import Wiring from '../components/Wiring.astro';
+import Build from '../components/Build.astro';
+import Specs from '../components/Specs.astro';
+import Bom from '../components/Bom.astro';
+import Firmware from '../components/Firmware.astro';
+import Bringup from '../components/Bringup.astro';
+import Status from '../components/Status.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base
+  title="ESPDeck: ovládací panel na ESP32 s OLED, šesti ploškami a enkodérem"
+  description="Postav si ESPDeck: ESP32, OLED 128×64, 6 kapacitních plošek a rotační enkodér na jednom railu 3,3 V. Zapojení 15 vodičů, kusovník za 414 Kč, testovací firmware."
+>
+  <Header />
+  <div class="trace" aria-hidden="true"><span data-trace></span></div>
+  <main id="obsah">
+    <Hero />
+    <Inside />
+    <Wiring />
+    <Build />
+    <Specs />
+    <Bom />
+    <Firmware />
+    <Bringup />
+    <Status />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  /* Měděná stopa vlevo: ukazuje, kde v dokumentaci právě jsi */
+  .trace {
+    position: fixed;
+    left: 0;
+    top: var(--header-h);
+    bottom: 0;
+    width: 2px;
+    z-index: 30;
+    pointer-events: none;
+    background: var(--line);
+  }
+  .trace span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--copper);
+    transform-origin: 0 0;
+    transform: scaleY(0);
+  }
+  :global(html:not(.js)) .trace {
+    display: none;
+  }
+</style>

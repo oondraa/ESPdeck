@@ -1,0 +1,436 @@
+/*
+ * ESPDeck – design tokens a základ.
+ * Tvarové pravidlo: rozhraní je ostré (radius 0). Kulaté jsou jen fyzické
+ * prvky zařízení (plošky, enkodér, piny), protože jsou kulaté i ve skutečnosti.
+ */
+
+:root {
+  color-scheme: dark;
+  --bg: #100e0c;
+  --bg-2: #171411;
+  --bg-3: #1e1a16;
+  --line: #2c2721;
+  --line-2: #4a4239;
+  --fg: #ece7df;
+  --fg-2: #a89f94;
+  --fg-3: #847b70;
+  --copper: #d0844f;
+  --copper-2: #e7a073;
+  --copper-ink: #1b120b;
+  --oled: #e3edf8;
+  --oled-off: #0b0d10;
+  --glass: #07080a;
+  --invert-bg: #e3edf8;
+  --invert-fg: #0c0e11;
+
+  /* barvy vodičů – jen diagramy */
+  --w-power: #ef5350;
+  --w-gnd: #8c8378;
+  --w-i2c: #4c8dff;
+  --w-enc: #f29a38;
+  --w-touch: #3fb874;
+
+  --font-sans: 'Schibsted Grotesk Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  --step-3: clamp(2rem, 1.3rem + 3vw, 3.75rem);
+  --step-4: clamp(2.75rem, 1.2rem + 6.4vw, 6.5rem);
+  --step-5: clamp(4.25rem, 1rem + 14vw, 13rem);
+
+  --gutter: clamp(16px, 4vw, 48px);
+  --gap: clamp(16px, 2vw, 24px);
+  --section: clamp(88px, 12vw, 176px);
+  --max: 1320px;
+  --header-h: 60px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --focus: 2px solid var(--copper-2);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #ecebe7;
+  --bg-2: #e3e2dd;
+  --bg-3: #d9d7d1;
+  --line: #cbc8c0;
+  --line-2: #a39f96;
+  --fg: #15120f;
+  --fg-2: #534c45;
+  --fg-3: #6b645c;
+  --copper: #9a481b;
+  --copper-2: #b85b28;
+  --copper-ink: #fff8f2;
+  --invert-bg: #15120f;
+  --invert-fg: #ecebe7;
+  --w-power: #d32f2f;
+  --w-gnd: #2a2622;
+  --w-i2c: #1f66e5;
+  --w-enc: #d97706;
+  --w-touch: #15803d;
+  --focus: 2px solid var(--copper);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --bg: #ecebe7;
+    --bg-2: #e3e2dd;
+    --bg-3: #d9d7d1;
+    --line: #cbc8c0;
+    --line-2: #a39f96;
+    --fg: #15120f;
+    --fg-2: #534c45;
+    --fg-3: #6b645c;
+    --copper: #9a481b;
+    --copper-2: #b85b28;
+    --copper-ink: #fff8f2;
+    --invert-bg: #15120f;
+    --invert-fg: #ecebe7;
+    --w-power: #d32f2f;
+    --w-gnd: #2a2622;
+    --w-i2c: #1f66e5;
+    --w-enc: #d97706;
+    --w-touch: #15803d;
+    --focus: 2px solid var(--copper);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  font-feature-settings: 'ss01', 'tnum' 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+/* Obsah daleko pod ohybem se vykreslí až při přiblížení */
+.cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1400px;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--copper);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+a:hover {
+  color: var(--copper-2);
+}
+
+:focus-visible {
+  outline: var(--focus);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--copper);
+  color: var(--copper-ink);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+.mono {
+  font-size: var(--step--1);
+  letter-spacing: 0;
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section);
+  position: relative;
+}
+
+.h2 {
+  font-size: var(--step-3);
+  max-width: 18ch;
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--fg-2);
+  max-width: 54ch;
+}
+
+.muted {
+  color: var(--fg-2);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 100;
+  background: var(--copper);
+  color: var(--copper-ink);
+  padding: 10px 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus {
+  top: 12px;
+}
+
+/* ---------- Tlačítka ---------- */
+
+.btn {
+  --b-bg: transparent;
+  --b-fg: var(--fg);
+  --b-line: var(--line-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 1px solid var(--b-line);
+  background: var(--b-bg);
+  color: var(--b-fg);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out),
+    color 160ms var(--ease-out),
+    transform 120ms var(--ease-out);
+}
+.btn:hover {
+  --b-line: var(--fg);
+  color: var(--b-fg);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn--primary {
+  --b-bg: var(--copper);
+  --b-fg: var(--copper-ink);
+  --b-line: var(--copper);
+}
+.btn--primary:hover {
+  --b-bg: var(--copper-2);
+  --b-line: var(--copper-2);
+}
+.btn .arrow {
+  font-family: var(--font-mono);
+  transition: transform 160ms var(--ease-out);
+}
+.btn:hover .arrow {
+  transform: translateX(3px);
+}
+
+/* ---------- Placeholder [DOPLŇ] ---------- */
+
+.fill {
+  display: inline;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  letter-spacing: 0;
+  color: var(--copper-2);
+  background: color-mix(in srgb, var(--copper) 10%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--copper) 70%, transparent);
+  outline-offset: 1px;
+  padding: 0.05em 0.35em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+:root[data-theme='light'] .fill {
+  color: var(--copper);
+}
+
+/* ---------- Tabulky (datasheet) ---------- */
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  outline-offset: -2px;
+}
+
+.dtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .table-scroll > .dtable:has(thead th:nth-child(5)) {
+    min-width: 600px;
+  }
+}
+.dtable caption {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--fg-2);
+  padding-bottom: 12px;
+}
+.dtable th,
+.dtable td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 16px 10px 0;
+}
+.dtable thead th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--fg-2);
+  border-bottom: 1px solid var(--line-2);
+  white-space: nowrap;
+}
+.dtable tbody tr + tr td,
+.dtable tbody tr + tr th {
+  border-top: 1px solid var(--line);
+}
+.dtable td.mono,
+.dtable th.mono {
+  font-size: 0.875rem;
+}
+.dtable .r {
+  text-align: right;
+}
+
+/* ---------- Disclosure ---------- */
+
+.disc {
+  border-top: 1px solid var(--line-2);
+}
+.disc:last-of-type {
+  border-bottom: 1px solid var(--line-2);
+}
+.disc > summary {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: 22px 0;
+  cursor: pointer;
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.disc > summary::-webkit-details-marker {
+  display: none;
+}
+.disc > summary .disc-mark {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--copper-2);
+  transition: transform 200ms var(--ease-out);
+}
+.disc[open] > summary .disc-mark {
+  transform: rotate(45deg);
+}
+.disc > summary:hover {
+  color: var(--copper-2);
+}
+.disc-body {
+  padding: 0 0 32px;
+  display: grid;
+  gap: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

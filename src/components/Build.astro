@@ -1,0 +1,157 @@
+---
+import { BUILD_STEPS, WARNINGS } from '../data/espdeck';
+---
+
+<section class="section build" id="stavba" aria-labelledby="build-title">
+  <div class="warn-band" role="region" aria-labelledby="warn-title">
+    <div class="wrap">
+      <h2 id="warn-title" class="warn-h">Tři chyby, které zničí ESP32 nebo zapojení</h2>
+      <ol class="warns">
+        {WARNINGS.map((w, i) => (
+          <li class="warn">
+            <span class="warn-n mono" aria-hidden="true">{i + 1}</span>
+            <h3>{w.title}</h3>
+            <p>{w.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+
+  <div class="wrap steps-grid">
+    <div class="steps-head">
+      <h2 id="build-title" class="h2">Sedm kroků od lišty po první start</h2>
+      <p class="muted sh-note">
+        Na stole to postavíš ze tří hotových modulů a 15 vodičů. Rezistor 510 Ω ke každé plošce osaď v prototypu
+        přímo na kolík lišty ESP32.
+      </p>
+    </div>
+    <ol class="steps">
+      {BUILD_STEPS.map((s, i) => (
+        <li class="step" data-step>
+          <span class="step-n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>{s.title}</h3>
+            <p>{s.body}</p>
+            {s.wires && <p class="step-w mono">vodiče {s.wires}</p>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .build {
+    padding-top: 0;
+  }
+  .warn-band {
+    background: var(--invert-bg);
+    color: var(--invert-fg);
+    padding-block: clamp(56px, 8vw, 104px);
+  }
+  .warn-h {
+    font-size: var(--step-3);
+    max-width: 20ch;
+  }
+  .warns {
+    list-style: none;
+    margin: clamp(40px, 5vw, 64px) 0 0;
+    padding: 0;
+  }
+  .warn {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 6fr) minmax(0, 5fr);
+    gap: 16px clamp(24px, 3vw, 48px);
+    align-items: baseline;
+    padding: 28px 0;
+    border-top: 2px solid currentColor;
+  }
+  .warn-n {
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .warn h3 {
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  .warn p {
+    font-size: 1rem;
+    line-height: 1.55;
+    opacity: 0.82;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 5vw, 96px);
+    padding-top: var(--section);
+  }
+  .steps-head {
+    position: sticky;
+    top: calc(var(--header-h) + 32px);
+    align-self: start;
+  }
+  .sh-note {
+    margin-top: 24px;
+    max-width: 38ch;
+  }
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 16px;
+    padding: 28px 0;
+    border-top: 1px solid var(--line);
+  }
+  .step:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .step-n {
+    font-size: 1.125rem;
+    color: var(--copper-2);
+    padding-top: 2px;
+  }
+  :global(:root[data-theme='light']) .step-n {
+    color: var(--copper);
+  }
+  .step h3 {
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+  }
+  .step p {
+    margin-top: 8px;
+    color: var(--fg-2);
+    max-width: 52ch;
+  }
+  .step .step-w {
+    margin-top: 12px;
+    color: var(--fg-3);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 900px) {
+    .warn {
+      grid-template-columns: 40px minmax(0, 1fr);
+    }
+    .warn p {
+      grid-column: 2;
+    }
+    .warn-n {
+      font-size: 1.75rem;
+    }
+    .steps-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .steps-head {
+      position: static;
+    }
+  }
+</style>

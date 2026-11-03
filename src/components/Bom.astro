@@ -1,0 +1,147 @@
+---
+import { BOM, BOM_TOTAL, PRICE_DATE } from '../data/espdeck';
+
+const fmt = (n: number): string => n.toLocaleString('cs-CZ');
+---
+
+<section class="section bom" id="kusovnik" aria-labelledby="bom-title">
+  <div class="wrap bom-grid">
+    <div class="bom-total">
+      <h2 id="bom-title" class="big num">
+        <span class="sr-only">Kusovník: </span>{fmt(BOM_TOTAL)}<span class="kc">Kč</span><span class="sr-only"> za tři hlavní moduly</span>
+      </h2>
+      <p class="bt-txt">
+        Tolik stojí tři hlavní moduly s DPH, ceny LaskaKit k {PRICE_DATE}. Pasivní součástky a materiál plošek
+        přidají desítky korun.
+      </p>
+    </div>
+
+    <div class="receipt" data-reveal-table>
+      <div class="table-scroll">
+        <table class="dtable btable">
+          <caption>BOM (kap. 9)</caption>
+          <thead>
+            <tr>
+              <th scope="col">Ozn.</th>
+              <th scope="col" class="r">Ks</th>
+              <th scope="col">Položka</th>
+              <th scope="col">Kód / zdroj</th>
+              <th scope="col">Povinné</th>
+              <th scope="col" class="r">Kč/ks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {BOM.map((r) => (
+              <tr class:list={{ priced: r.price !== null }}>
+                <td class="mono ref">{r.ref}</td>
+                <td class="mono r">{r.qty}</td>
+                <th scope="row">
+                  {r.item}
+                  <span class="val">{r.value}</span>
+                </th>
+                <td class="mono code">{r.code}</td>
+                <td class="req">{r.required}</td>
+                <td class="mono r">{r.price === null ? '–' : fmt(r.price)}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" colspan="5">Součet U1 + U2 + U3, s DPH</th>
+              <td class="mono r">{fmt(BOM_TOTAL)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="mono date">Ceny k {PRICE_DATE}, LaskaKit. Před nákupem je ověř.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bom-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 5vw, 96px);
+    align-items: start;
+  }
+  .bom-total {
+    position: sticky;
+    top: calc(var(--header-h) + 32px);
+  }
+  .big {
+    font-size: var(--step-5);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 0.85;
+    display: flex;
+    align-items: baseline;
+    gap: 0.1em;
+  }
+  .big .kc {
+    font-size: 0.28em;
+    letter-spacing: -0.02em;
+    color: var(--copper-2);
+  }
+  :global(:root[data-theme='light']) .big .kc {
+    color: var(--copper);
+  }
+  .bt-txt {
+    margin-top: 28px;
+    max-width: 34ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--fg-2);
+  }
+  .receipt {
+    border-top: 2px solid var(--fg);
+    padding-top: 20px;
+  }
+  .btable th[scope='row'] {
+    font-weight: 500;
+  }
+  .val {
+    display: block;
+    color: var(--fg-3);
+    font-size: 0.8125rem;
+    font-weight: 400;
+  }
+  .ref {
+    white-space: nowrap;
+    color: var(--fg-2);
+  }
+  .code {
+    color: var(--fg-2);
+    font-size: 0.8125rem !important;
+  }
+  .req {
+    font-size: 0.8125rem;
+    color: var(--fg-2);
+    white-space: nowrap;
+  }
+  .priced .r:last-child {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .btable tfoot th,
+  .btable tfoot td {
+    border-top: 2px solid var(--fg);
+    padding-top: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .date {
+    margin-top: 16px;
+    color: var(--fg-3);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 960px) {
+    .bom-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .bom-total {
+      position: static;
+    }
+  }
+</style>

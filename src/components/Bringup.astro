@@ -1,0 +1,225 @@
+---
+import { BRINGUP, RISKS } from '../data/espdeck';
+
+const GROUPS: ReadonlyArray<{ title: string; from: number; to: number }> = [
+  { title: 'Napájení', from: 0, to: 2 },
+  { title: 'I²C a displej', from: 3, to: 4 },
+  { title: 'Enkodér', from: 5, to: 6 },
+  { title: 'Dotyk', from: 7, to: 9 },
+  { title: 'Start', from: 10, to: 10 },
+];
+---
+
+<section class="section bring cv" id="oziveni" aria-labelledby="bring-title" data-checklist>
+  <div class="wrap">
+    <div class="bh">
+      <h2 id="bring-title" class="h2">11 kontrol od napájení po strapping piny</h2>
+      <div class="prog" aria-hidden="true">
+        <div class="cells">
+          {BRINGUP.map((_, i) => <span class="cell" data-cell={i}></span>)}
+        </div>
+        <p class="mono pc"><span data-done>0</span> / {BRINGUP.length}</p>
+      </div>
+    </div>
+    <p class="lede bl">
+      Oživuj po krocích od napájení k periferiím. Každý krok má měřitelné kritérium. Naměřené hodnoty dotyku si zapiš,
+      podle nich nastavíš finální prahy. Zaškrtnuté kroky si prohlížeč pamatuje.
+    </p>
+    <p class="sr-only" aria-live="polite" data-status></p>
+
+    <div class="groups">
+      {GROUPS.map((g) => (
+        <fieldset class="grp">
+          <legend>{g.title}</legend>
+          <ol start={g.from + 1}>
+            {BRINGUP.slice(g.from, g.to + 1).map((t, k) => {
+              const i = g.from + k;
+              return (
+                <li>
+                  <label class="chk">
+                    <input type="checkbox" data-check={i} />
+                    <span class="box" aria-hidden="true"></span>
+                    <span class="n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="t">{t}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ol>
+        </fieldset>
+      ))}
+    </div>
+
+    <div class="bfoot">
+      <button type="button" class="btn" data-reset disabled>Vymazat zaškrtnutí</button>
+    </div>
+
+    <div class="risks">
+      <h3 class="rh">Osm známých rizik</h3>
+      <div class="table-scroll">
+        <table class="dtable">
+          <thead>
+            <tr><th scope="col">Riziko</th><th scope="col">Dopad</th><th scope="col">Opatření</th></tr>
+          </thead>
+          <tbody>
+            {RISKS.map((r) => (
+              <tr><th scope="row">{r.risk}</th><td class="muted">{r.impact}</td><td>{r.fix}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bh {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+  }
+  .prog {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+  }
+  .cells {
+    display: grid;
+    grid-template-columns: repeat(11, 22px);
+    gap: 6px;
+  }
+  .cell {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--fg-3);
+    transition:
+      background-color 160ms var(--ease-out),
+      border-color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
+  }
+  .cell.on {
+    background: var(--copper);
+    border-color: var(--copper);
+  }
+  .cell.pop {
+    transform: scale(1.18);
+  }
+  .pc {
+    color: var(--fg-2);
+  }
+  .bl {
+    margin-top: 24px;
+  }
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 40px clamp(24px, 3vw, 48px);
+    margin-top: clamp(48px, 6vw, 80px);
+  }
+  .grp {
+    margin: 0;
+    padding: 16px 0 0;
+    border: 0;
+    border-top: 2px solid var(--fg);
+    min-width: 0;
+  }
+  .grp legend {
+    padding: 0;
+    float: left;
+    width: 100%;
+    font-weight: 600;
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .grp ol {
+    clear: both;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .chk {
+    position: relative;
+    display: grid;
+    grid-template-columns: 22px 28px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 10px 8px 10px 0;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+  .chk input {
+    position: absolute;
+    opacity: 0;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    top: 10px;
+    left: 0;
+  }
+  .box {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    border: 2px solid var(--fg-2);
+    transition:
+      background-color 120ms var(--ease-out),
+      border-color 120ms var(--ease-out);
+  }
+  .chk:hover .box {
+    border-color: var(--fg);
+  }
+  .chk input:focus-visible + .box {
+    outline: var(--focus);
+    outline-offset: 3px;
+  }
+  .chk input:checked + .box {
+    background: var(--copper);
+    border-color: var(--copper);
+  }
+  .n {
+    color: var(--fg-3);
+    font-size: 0.75rem;
+    padding-top: 3px;
+  }
+  .chk input:checked ~ .t {
+    color: var(--fg-3);
+    text-decoration: line-through;
+    text-decoration-color: var(--line-2);
+  }
+  .bfoot {
+    margin-top: 32px;
+  }
+  .risks {
+    margin-top: clamp(80px, 10vw, 140px);
+  }
+  .rh {
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+  }
+  .risks th[scope='row'] {
+    font-weight: 500;
+  }
+
+  @media (max-width: 560px) {
+    .cells {
+      grid-template-columns: repeat(11, minmax(0, 1fr));
+      width: 100%;
+    }
+    .cell {
+      width: auto;
+      aspect-ratio: 1;
+      height: auto;
+    }
+    .prog {
+      width: 100%;
+      justify-items: start;
+    }
+  }
+</style>

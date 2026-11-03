@@ -1,0 +1,156 @@
+---
+import { Code } from 'astro:components';
+import { FIRMWARE, FIRMWARE_NOTES } from '../data/espdeck';
+
+const lines = FIRMWARE.trimEnd().split('\n').length;
+---
+
+<section class="section fw cv" id="firmware" aria-labelledby="fw-title">
+  <div class="wrap">
+    <h2 id="fw-title" class="h2 fw-h">Jeden sketch ověří displej, enkodér i všech šest plošek</h2>
+
+    <dl class="req">
+      <div><dt class="mono">Prostředí</dt><dd>Arduino IDE</dd></div>
+      <div><dt class="mono">Deska</dt><dd>„ESP32 Dev Module“</dd></div>
+      <div><dt class="mono">Knihovna</dt><dd>U8g2 ze Správce knihoven</dd></div>
+      <div><dt class="mono">Sériová linka</dt><dd>115200 Bd, výpis T1…T6 každých 500 ms</dd></div>
+    </dl>
+
+    <div class="code-card" data-copy-root>
+      <div class="code-bar">
+        <p class="mono">Testovací firmware, kap. 8 <span class="muted">/ {lines} řádků, C++</span></p>
+        <button class="btn copy" type="button" data-copy aria-live="polite">
+          <span data-copy-label>Kopírovat</span>
+        </button>
+      </div>
+      <div class="code-scroll" tabindex="0" aria-label="Zdrojový kód testovacího firmwaru">
+        <Code code={FIRMWARE.trimEnd()} lang="cpp" theme="css-variables" wrap={false} />
+      </div>
+      <textarea class="sr-only" data-copy-src tabindex="-1" aria-hidden="true" readonly>{FIRMWARE}</textarea>
+    </div>
+
+    <ol class="fw-notes">
+      {FIRMWARE_NOTES.map((n) => <li>{n}</li>)}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .fw-h {
+    max-width: 20ch;
+  }
+  .req {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 48px 0 0;
+    padding: 20px 0;
+    border-top: 1px solid var(--line-2);
+  }
+  .req dt {
+    color: var(--fg-3);
+    margin-bottom: 4px;
+  }
+  .req dd {
+    margin: 0;
+    font-weight: 500;
+  }
+  .code-card {
+    margin-top: 16px;
+    background: var(--glass);
+    color: #d9dee6;
+    border: 1px solid var(--line-2);
+    --astro-code-foreground: #d9dee6;
+    --astro-code-background: transparent;
+    --astro-code-token-comment: #7d8590;
+    --astro-code-token-keyword: #e7a073;
+    --astro-code-token-string: #a8d1a0;
+    --astro-code-token-string-expression: #a8d1a0;
+    --astro-code-token-constant: #e3edf8;
+    --astro-code-token-function: #9ec2ff;
+    --astro-code-token-parameter: #d9dee6;
+    --astro-code-token-punctuation: #8b949e;
+    --astro-code-token-link: #9ec2ff;
+  }
+  .code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 10px 10px 20px;
+    border-bottom: 1px solid #2a2d33;
+  }
+  .code-bar p {
+    color: #c3c9d2;
+  }
+  .code-bar .muted {
+    color: #8b949e;
+  }
+  .copy {
+    --b-fg: #e3edf8;
+    --b-line: #3a3f47;
+    min-height: 40px;
+    font-size: 0.875rem;
+  }
+  .copy:hover {
+    --b-line: #e3edf8;
+  }
+  .copy[data-state='ok'] {
+    --b-bg: var(--copper);
+    --b-line: var(--copper);
+    --b-fg: var(--copper-ink);
+  }
+  .copy[data-state='err'] {
+    --b-line: #ef5350;
+  }
+  .code-scroll {
+    max-height: min(72vh, 760px);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .code-scroll :global(pre) {
+    margin: 0;
+    padding: 20px;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    tab-size: 2;
+  }
+  .code-scroll:focus-visible {
+    outline-offset: -2px;
+  }
+  .fw-notes {
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 48px;
+    counter-reset: n;
+  }
+  .fw-notes li {
+    counter-increment: n;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    color: var(--fg-2);
+    font-size: 0.9375rem;
+  }
+  .fw-notes li::before {
+    content: counter(n);
+    font-family: var(--font-mono);
+    color: var(--copper-2);
+  }
+
+  @media (max-width: 860px) {
+    .req {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .fw-notes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 420px) {
+    .code-bar p .muted {
+      display: none;
+    }
+  }
+</style>

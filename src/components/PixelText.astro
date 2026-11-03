@@ -1,0 +1,28 @@
+---
+import { ADVANCE, GLYPH_H, textPixels } from '../lib/pixelfont';
+
+interface Props {
+  text: string;
+  /** výška v CSS (např. "20px" nebo "1em") */
+  height?: string;
+  class?: string;
+  label?: string;
+}
+
+const { text, height = '1em', class: cls, label } = Astro.props;
+const px = textPixels(text, 0, GLYPH_H);
+const w = text.length * ADVANCE - 1;
+---
+
+<svg
+  class={cls}
+  viewBox={`0 0 ${w} ${GLYPH_H}`}
+  style={`height:${height};width:auto`}
+  shape-rendering="crispEdges"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <path fill="currentColor" d={px.map(([x, y]) => `M${x} ${y}h1v1h-1z`).join('')} />
+</svg>
