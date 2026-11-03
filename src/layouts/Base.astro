@@ -3,6 +3,7 @@ import '@fontsource-variable/schibsted-grotesk/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/global.css';
 import { withBase } from '../lib/url';
+import { AUTHOR_URL, REPO_URL } from '../data/espdeck';
 
 interface Props {
   title: string;
@@ -10,8 +11,41 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+// GitHub Pages přesměruje "/ESPdeck" na "/ESPdeck/" – canonical musí mířit na cílovou URL.
+const path = /\/$|\.[a-z0-9]+$/i.test(Astro.url.pathname) ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const canonical = new URL(path, Astro.site ?? Astro.url).href;
 const ogImage = new URL(withBase('og.png'), Astro.site ?? Astro.url).href;
+
+// Ověření Google Search Console: token se předává při buildu (repo variable GOOGLE_SITE_VERIFICATION).
+const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${canonical}#website`,
+      url: canonical,
+      name: 'ESPDeck',
+      alternateName: ['ESP Deck', 'ESPdeck'],
+      description,
+      inLanguage: 'cs-CZ',
+    },
+    {
+      '@type': 'CreativeWork',
+      '@id': `${canonical}#project`,
+      name: 'ESPDeck',
+      description:
+        'Open hardware ovládací panel (macro deck) na ESP32 s OLED displejem 128×64, šesti kapacitními dotykovými ploškami a rotačním enkodérem.',
+      url: canonical,
+      image: ogImage,
+      inLanguage: 'cs-CZ',
+      author: { '@type': 'Person', name: 'Ondra', url: AUTHOR_URL },
+      codeRepository: REPO_URL,
+      keywords: 'ESPDeck, ESP32, macro deck, stream deck, OLED, kapacitní dotyk, rotační enkodér',
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -21,7 +55,14 @@ const ogImage = new URL(withBase('og.png'), Astro.site ?? Astro.url).href;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="keywords" content="ESPDeck, ESP Deck, ESP32, macro deck, stream deck, ovládací panel, OLED 128x64, SH1106, kapacitní dotyk, rotační enkodér, DIY" />
+    <meta name="author" content="Ondra (oondraa)" />
+    <meta name="application-name" content="ESPDeck" />
+    <meta name="apple-mobile-web-app-title" content="ESPDeck" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
     <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" href={withBase('sitemap.xml')} />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#100e0c" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#ecebe7" media="(prefers-color-scheme: light)" />
@@ -39,7 +80,13 @@ const ogImage = new URL(withBase('og.png'), Astro.site ?? Astro.url).href;
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="ESPDeck: displej 128×64, šest měděných plošek a enkodér na ESP32" />
+    <meta property="og:image:type" content="image/png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     <script is:inline>
       (function () {
