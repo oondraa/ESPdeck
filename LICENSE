@@ -1,0 +1,78 @@
+ESPDeck – Licence pro osobní nekomerční použití
+Copyright (c) 2026 Ondra (oondraa) a přispěvatelé projektu ESPDeck.
+Všechna práva vyhrazena.
+
+1. AUTORSKÁ PRÁVA
+   Veškerá práva k tomuto projektu, včetně zdrojového kódu, firmwaru,
+   schémat zapojení, návrhů DPS, 3D modelů, dokumentace a dalších souborů
+   (dále jen „Dílo“), náleží výhradně autorům.
+
+2. POVOLENÉ POUŽITÍ
+   Dílo smíte bezplatně stahovat, prohlížet, sestavit, upravovat a používat
+   výhradně pro osobní, nekomerční účely (např. vlastní domácí projekt,
+   studium, výuka).
+
+3. ZAKÁZANÉ POUŽITÍ
+   Bez předchozího písemného souhlasu autorů je zakázáno zejména:
+   a) jakékoli komerční použití Díla nebo jeho části;
+   b) prodej, pronájem či jiné zpoplatněné poskytování Díla, jeho úprav
+      nebo zařízení vyrobených podle Díla;
+   c) zahrnutí Díla nebo jeho části do komerčního produktu či služby;
+   d) další šíření Díla nebo jeho upravených verzí pod jinou licencí
+      či bez uvedení autorů a tohoto licenčního textu.
+
+4. UVEDENÍ AUTORSTVÍ
+   Při jakémkoli povoleném sdílení Díla nebo jeho úprav musí být zachováno
+   uvedení autorů, odkaz na původní repozitář
+   (https://github.com/oondraa/ESPdeck) a plné znění této licence.
+
+5. KOMERČNÍ LICENCE
+   Zájem o komerční použití je nutné předem projednat s autory.
+   Kontakt: přes GitHub https://github.com/oondraa
+
+6. VYLOUČENÍ ODPOVĚDNOSTI
+   Dílo je poskytováno „tak, jak je“, bez jakýchkoli záruk, výslovných
+   či odvozených. Autoři nenesou odpovědnost za jakékoli škody vzniklé
+   použitím Díla, včetně škod na zařízení, majetku či zdraví.
+
+--------------------------------------------------------------------------
+
+ESPDeck – Personal Non-Commercial License
+Copyright (c) 2026 Ondra (oondraa) and ESPDeck contributors.
+All rights reserved.
+
+1. COPYRIGHT
+   All rights to this project, including source code, firmware, wiring
+   schematics, PCB designs, 3D models, documentation and all other files
+   (the "Work"), are reserved exclusively by the authors.
+
+2. PERMITTED USE
+   You may download, view, build, modify and use the Work free of charge
+   solely for personal, non-commercial purposes (e.g. a personal hobby
+   project, study, education).
+
+3. PROHIBITED USE
+   Without prior written permission from the authors, you may not:
+   a) use the Work or any part of it for any commercial purpose;
+   b) sell, rent or otherwise provide for a fee the Work, modified versions
+      of it, or devices built from it;
+   c) include the Work or any part of it in a commercial product or service;
+   d) redistribute the Work or modified versions under a different license
+      or without crediting the authors and including this license text.
+
+4. ATTRIBUTION
+   Any permitted sharing of the Work or its modifications must retain
+   credit to the authors, a link to the original repository
+   (https://github.com/oondraa/ESPdeck) and the full text of this license.
+
+5. COMMERCIAL LICENSING
+   Commercial use must be agreed with the authors in advance.
+   Contact: via GitHub https://github.com/oondraa
+
+6. DISCLAIMER
+   THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DAMAGES ARISING
+   FROM THE USE OF THE WORK, INCLUDING DAMAGE TO EQUIPMENT, PROPERTY OR
+   HEALTH.
+
+In case of any discrepancy, the Czech version prevails.
