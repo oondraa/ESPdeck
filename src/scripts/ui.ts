@@ -95,7 +95,9 @@ export function initHeader(): void {
   }
 
   // Aktivní sekce v navigaci
-  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.nav a[href^="#"]'));
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.nav a[data-section]')).filter(
+    (a) => a.pathname === location.pathname,
+  );
   const map = new Map<string, HTMLAnchorElement>();
   links.forEach((a) => map.set(a.hash.slice(1), a));
   const sections = Array.from(map.keys())
@@ -236,6 +238,28 @@ export function initChecklist(): void {
   });
 
   render(null);
+}
+
+/* ---------- Dokumentace: aktivní kapitola v postranní navigaci ---------- */
+
+export function initDocsNav(): void {
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-docs-nav] a'));
+  if (links.length === 0) return;
+  const map = new Map(links.map((a) => [decodeURIComponent(a.hash.slice(1)), a]));
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const en of entries) {
+        if (!en.isIntersecting) continue;
+        links.forEach((l) => l.removeAttribute('aria-current'));
+        map.get(en.target.id)?.setAttribute('aria-current', 'true');
+      }
+    },
+    { rootMargin: '-20% 0px -70% 0px' },
+  );
+  map.forEach((_, id) => {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  });
 }
 
 /* ---------- Diagram: zvýraznění trasy ---------- */

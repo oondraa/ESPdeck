@@ -13,7 +13,7 @@
   --line-2: #4a4239;
   --fg: #ece7df;
   --fg-2: #a89f94;
-  --fg-3: #847b70;
+  --fg-3: #938a7e;
   --copper: #d0844f;
   --copper-2: #e7a073;
   --copper-ink: #1b120b;
@@ -43,7 +43,7 @@
 
   --gutter: clamp(16px, 4vw, 48px);
   --gap: clamp(16px, 2vw, 24px);
-  --section: clamp(88px, 12vw, 176px);
+  --section: clamp(64px, 8vw, 120px);
   --max: 1320px;
   --header-h: 60px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -59,9 +59,9 @@
   --line-2: #a39f96;
   --fg: #15120f;
   --fg-2: #534c45;
-  --fg-3: #6b645c;
+  --fg-3: #625b53;
   --copper: #9a481b;
-  --copper-2: #b85b28;
+  --copper-2: #8f4117;
   --copper-ink: #fff8f2;
   --invert-bg: #15120f;
   --invert-fg: #ecebe7;
@@ -83,9 +83,9 @@
     --line-2: #a39f96;
     --fg: #15120f;
     --fg-2: #534c45;
-    --fg-3: #6b645c;
+    --fg-3: #625b53;
     --copper: #9a481b;
-    --copper-2: #b85b28;
+    --copper-2: #8f4117;
     --copper-ink: #fff8f2;
     --invert-bg: #15120f;
     --invert-fg: #ecebe7;
@@ -151,12 +151,6 @@ h4 {
 
 p {
   margin: 0;
-}
-
-/* Obsah daleko pod ohybem se vykreslí až při přiblížení */
-.cv {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 1400px;
 }
 
 a {
@@ -312,32 +306,89 @@ pre,
   transform: translateX(3px);
 }
 
-/* ---------- Placeholder [DOPLŇ] ---------- */
+/* ---------- 3D scéna ---------- */
 
-.fill {
-  display: inline;
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  letter-spacing: 0;
-  color: var(--copper-2);
-  background: color-mix(in srgb, var(--copper) 10%, transparent);
-  outline: 1px dashed color-mix(in srgb, var(--copper) 70%, transparent);
-  outline-offset: 1px;
-  padding: 0.05em 0.35em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+.stage-host {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  background: radial-gradient(90% 80% at 50% 42%, var(--bg-3), var(--bg) 100%);
 }
-:root[data-theme='light'] .fill {
-  color: var(--copper);
+.stage-poster,
+.stage-mount {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.stage-poster {
+  object-fit: contain;
+  transition: opacity 300ms var(--ease-out);
+}
+.stage-mount {
+  pointer-events: none;
+}
+/* Živý displej nad statickým obrázkem. Přesnou polohu nastavuje deck.ts homografií. */
+.stage-oled {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 256px;
+  height: 128px;
+  max-width: none;
+  transform-origin: 0 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 300ms var(--ease-out);
+}
+.stage-oled:not([data-placed]) {
+  opacity: 0;
+}
+.stage-host[data-ready]:has(.stage-canvas) .stage-oled {
+  opacity: 0;
+}
+.stage-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out);
+  pointer-events: none;
+}
+.stage-host[data-ready] .stage-canvas {
+  opacity: 1;
+}
+.stage-host[data-ready]:has(.stage-canvas) .stage-poster {
+  opacity: 0;
+}
+.hot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
+  border-radius: 12%;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 140ms var(--ease-out);
+}
+.hot--knob {
+  border-radius: 50%;
+  cursor: grab;
+}
+.hot--knob:active {
+  cursor: grabbing;
+}
+.hot:hover {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 45%, transparent);
+}
+:root[data-stage='3d'] .stage-host[data-ready]:has(.stage-canvas) .hot {
+  display: block;
 }
 
-/* ---------- Tabulky (datasheet) ---------- */
-
-.table-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  outline-offset: -2px;
-}
+/* ---------- Tabulky (plynou se stránkou, na úzké šířce karty) ---------- */
 
 .dtable {
   width: 100%;
@@ -345,9 +396,54 @@ pre,
   font-size: 0.9375rem;
   font-variant-numeric: tabular-nums;
 }
+.dtable td {
+  overflow-wrap: anywhere;
+}
 @media (max-width: 640px) {
-  .table-scroll > .dtable:has(thead th:nth-child(5)) {
-    min-width: 600px;
+  .rt,
+  .rt tbody,
+  .rt tr,
+  .rt td,
+  .rt caption {
+    display: block;
+  }
+  .rt thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .rt tbody {
+    display: grid;
+    gap: 6px;
+  }
+  .rt tbody tr {
+    background: var(--bg-2);
+    padding: 10px 12px;
+  }
+  .dtable.rt tbody tr + tr td {
+    border-top: 0;
+  }
+  .dtable.rt td {
+    display: grid;
+    grid-template-columns: minmax(84px, 2fr) minmax(0, 5fr);
+    gap: 10px;
+    padding: 2px 0;
+  }
+  .rt td::before {
+    content: attr(data-label);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    color: var(--fg-3);
+  }
+  .dtable.rt td.rt-primary {
+    display: block;
+    font-weight: 600;
+    padding-bottom: 4px;
+  }
+  .rt td.rt-primary::before {
+    content: none;
   }
 }
 .dtable caption {
@@ -381,47 +477,6 @@ pre,
 }
 .dtable .r {
   text-align: right;
-}
-
-/* ---------- Disclosure ---------- */
-
-.disc {
-  border-top: 1px solid var(--line-2);
-}
-.disc:last-of-type {
-  border-bottom: 1px solid var(--line-2);
-}
-.disc > summary {
-  list-style: none;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 16px;
-  padding: 22px 0;
-  cursor: pointer;
-  font-size: var(--step-1);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.disc > summary::-webkit-details-marker {
-  display: none;
-}
-.disc > summary .disc-mark {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--copper-2);
-  transition: transform 200ms var(--ease-out);
-}
-.disc[open] > summary .disc-mark {
-  transform: rotate(45deg);
-}
-.disc > summary:hover {
-  color: var(--copper-2);
-}
-.disc-body {
-  padding: 0 0 32px;
-  display: grid;
-  gap: 20px;
 }
 
 @media (prefers-reduced-motion: reduce) {

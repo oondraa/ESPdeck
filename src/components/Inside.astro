@@ -1,172 +1,185 @@
 ---
-import { MODULES } from '../data/espdeck';
+import { withBase } from '../lib/url';
+
+const STEPS = [
+  { id: 'esp', ref: 'U1', name: 'ESP32-S3 DevKit', big: 'WROOM-1 N16', specs: ['16 MB flash', 'USB-UART CH9102', 'μŠup spínaný GPIO47'], tag: 'ESP32-S3' },
+  { id: 'oled', ref: 'U2', name: 'OLED 1,3"', big: '128×64', specs: ['Řadič SH1106', 'I²C 0x3C na 400 kHz', 'SDA GPIO42, SCL GPIO2'], tag: 'SH1106' },
+  { id: 'enc', ref: 'U3', name: 'Enkodér s tlačítkem', big: '20 pulzů/ot.', specs: ['4 hrany = 1 cvak', 'GPIO15, 16, 17', 'Pin „5V“ na 3V3'], tag: 'enkodér' },
+  { id: 'pads', ref: 'E1 až E6', name: 'Dotykové plošky', big: '6 kanálů', specs: ['GPIO 4, 5, 6, 7, 8, 1', 'Dotyk nad 120 % základu', 'Čtení každých 10 ms'], tag: 'plošky' },
+] as const;
 ---
 
-<section class="section inside" id="uvnitr" aria-labelledby="inside-title">
+<section class="section inside" id="uvnitr" aria-labelledby="inside-title" data-inside>
   <div class="wrap">
-    <div class="intro">
-      <h2 id="inside-title" class="h2">Tři moduly z LaskaKitu a šest měděných plošek</h2>
-      <dl class="facts">
-        <div>
-          <dt class="mono">K čemu slouží</dt>
-          <dd><span class="fill">[DOPLŇ: 1–2 věty, k čemu ESPDeck slouží, pro koho je a co ovládá]</span></dd>
+    <h2 id="inside-title" class="h2 inside-h">Tři moduly a šest plošek</h2>
+    <div class="inside-grid">
+      <div class="inside-stage">
+        <div class="stage-host" data-stage-host="inside">
+          <img
+            class="stage-poster"
+            src={withBase('poster-inside.webp')}
+            width="1200"
+            height="1200"
+            alt="Rozložený pohled na prototyp: deska, modul OLED, enkodér a šest plošek oddělené v prostoru."
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="stage-mount" data-stage-mount></div>
+          <svg class="leaders" aria-hidden="true">
+            {STEPS.map((s) => <line data-leader={s.id} />)}
+          </svg>
+          {STEPS.map((s) => (
+            <span class="tag" data-tag={s.id} aria-hidden="true">
+              <b>{s.ref}</b><span class="tag-more"> {s.tag}</span>
+            </span>
+          ))}
         </div>
-        <div>
-          <dt class="mono">Spojení s počítačem</dt>
-          <dd><span class="fill">[DOPLŇ: Wi-Fi, Bluetooth, nebo USB sériově]</span></dd>
-        </div>
-      </dl>
-    </div>
-
-    <ol class="mods">
-      {MODULES.map((m) => (
-        <li class="mod" data-reveal-row>
-          <p class="ref mono" aria-hidden="true">{m.index}</p>
-          <div class="mod-head">
-            <h3>{m.name}</h3>
-            <p class="part">{m.part}</p>
-            <p class="meta mono">
-              <span>{m.code}</span>
-              <span>Napájení: {m.power}</span>
-            </p>
-          </div>
-          <dl class="mod-specs">
-            {m.specs.map((s) => (
-              <div>
-                <dt>{s.k}</dt>
-                <dd>{s.v}</dd>
-              </div>
-            ))}
-          </dl>
-        </li>
-      ))}
-    </ol>
-
-    <figure class="photo">
-      <div class="photo-slot">
-        <span class="fill">[DOPLŇ: fotky nebo video prototypu, zatím nejsou]</span>
       </div>
-      <figcaption class="mono">Sem patří fotka skutečného zapojení na stole.</figcaption>
-    </figure>
+      <ol class="inside-steps">
+        {STEPS.map((s) => (
+          <li class="step" data-inside-step={s.id}>
+            <p class="step-ref">{s.ref}</p>
+            <h3>{s.name}</h3>
+            <p class="step-big">{s.big}</p>
+            <ul>
+              {s.specs.map((x) => <li>{x}</li>)}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
   </div>
 </section>
 
 <style>
-  .intro {
+  .inside-h {
+    max-width: none;
+  }
+  .inside-grid {
     display: grid;
-    gap: 40px;
-    margin-bottom: clamp(56px, 8vw, 112px);
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(24px, 4vw, 64px);
+    margin-top: clamp(24px, 3vw, 40px);
   }
-  .facts {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px 48px;
-    margin: 0;
-    max-width: 920px;
+  .inside-stage {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+    align-self: start;
   }
-  .facts dt {
-    color: var(--fg-3);
-    margin-bottom: 8px;
+  .inside-stage .stage-host {
+    aspect-ratio: auto;
+    height: calc(100svh - var(--header-h) - 32px);
   }
-  .facts dd {
-    margin: 0;
-    font-size: var(--step-1);
-    line-height: 1.5;
-  }
-
-  .mods {
+  .inside-steps {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .mod {
-    display: grid;
-    grid-template-columns: minmax(96px, 2fr) minmax(0, 4fr) minmax(0, 6fr);
-    gap: var(--gap) clamp(24px, 3vw, 48px);
-    padding: clamp(28px, 4vw, 48px) 0;
-    border-top: 1px solid var(--line-2);
+  .step {
+    min-height: 44svh;
+    padding-block: clamp(16px, 2vw, 24px);
+    border-left: 2px solid var(--line);
+    padding-left: clamp(16px, 2vw, 28px);
+    transition: border-color 200ms var(--ease-out);
   }
-  .mod:last-child {
-    border-bottom: 1px solid var(--line-2);
+  .step[data-active] {
+    border-left-color: var(--copper-2);
   }
-  .ref {
-    font-size: clamp(2rem, 4.4vw, 4rem);
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-    color: var(--copper-2);
-    white-space: nowrap;
+  .step-ref {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-3);
   }
-  :global(:root[data-theme='light']) .ref {
-    color: var(--copper);
-  }
-  .mod-head h3 {
+  .step h3 {
+    margin-top: 8px;
     font-size: var(--step-2);
-    letter-spacing: -0.025em;
   }
-  .part {
-    margin-top: 10px;
+  .step-big {
+    margin-top: 16px;
+    font-size: var(--step-3);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--copper-2);
+  }
+  .step ul {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
     color: var(--fg-2);
   }
-  .meta {
-    display: grid;
-    gap: 4px;
-    margin-top: 16px;
-    color: var(--fg-3);
-    font-size: 0.75rem;
+
+  .leaders {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
   }
-  .mod-specs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px 32px;
-    margin: 0;
+  .leaders line {
+    stroke: var(--fg-2);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out);
   }
-  .mod-specs dt {
+  .leaders line[data-on] {
+    opacity: 0.8;
+  }
+  .tag b {
+    font-weight: 600;
+  }
+  .tag {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 3px 8px;
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: var(--fg-3);
+    white-space: nowrap;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--line-2);
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out);
+    pointer-events: none;
   }
-  .mod-specs dd {
-    margin: 4px 0 0;
-    font-size: 0.9375rem;
-    line-height: 1.45;
+  .tag[data-on] {
+    opacity: 1;
   }
-
-  .photo {
-    margin: clamp(56px, 8vw, 112px) 0 0;
-  }
-  .photo-slot {
-    aspect-ratio: 3 / 1;
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    place-items: center;
-    padding: 24px;
-    text-align: center;
-    border: 1px dashed var(--line-2);
-    background:
-      repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--fg) 4%, transparent) 10px 11px);
-  }
-  .photo figcaption {
-    margin-top: 10px;
-    color: var(--fg-3);
+  .tag[data-active] {
+    border-color: var(--copper-2);
   }
 
-  @media (max-width: 900px) {
-    .mod {
+  @media (max-width: 1023.98px) {
+    .inside-grid {
       grid-template-columns: minmax(0, 1fr);
     }
-    .ref {
-      font-size: 2rem;
+    .inside-stage {
+      position: static;
+    }
+    .inside-stage .stage-host {
+      height: auto;
+      aspect-ratio: 1 / 1;
+      max-height: 72svh;
+    }
+    .inside-steps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+    .step {
+      min-height: 0;
     }
   }
   @media (max-width: 560px) {
-    .photo-slot {
-      aspect-ratio: auto;
-      min-height: 180px;
-    }
-    .facts,
-    .mod-specs {
+    .inside-steps {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .tag-more {
+      display: none;
     }
   }
 </style>

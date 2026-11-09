@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro';
 import { withBase } from '../lib/url';
 
-// Web má jedinou stránku; při přidání dalších je doplň do PAGES.
-const PAGES = [''];
+const PAGES = ['', 'dokumentace/'];
 
 export const GET: APIRoute = ({ site }) => {
   const lastmod = new Date().toISOString().slice(0, 10);

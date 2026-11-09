@@ -1,0 +1,379 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import DataTable from '../components/docs/DataTable.astro';
+import Wiring from '../components/docs/Wiring.astro';
+import Checklist from '../components/docs/Checklist.astro';
+import {
+  BINDINGS,
+  BOM,
+  BOM_KNOWN_TOTAL,
+  CONTROLS,
+  DEVIATIONS,
+  FINDINGS,
+  KEY_NAMES,
+  LIMITS,
+  MODULES,
+  NET_ROWS,
+  NOT_STATED,
+  PIN_RULES,
+  PRICE_DATE,
+  PROTOCOL_DECK,
+  PROTOCOL_PC,
+  SERIAL_CMDS,
+  SETTINGS_ROWS,
+  TOOLS,
+  TOUCH_STEPS,
+  WARNINGS,
+} from '../data/espdeck';
+
+const NAV = [
+  { id: 'prehled', label: 'Přehled' },
+  { id: 'zapojeni', label: 'Zapojení' },
+  { id: 'piny', label: 'Pravidla pinů' },
+  { id: 'moduly', label: 'Moduly' },
+  { id: 'kusovnik', label: 'Kusovník' },
+  { id: 'firmware', label: 'Firmware' },
+  { id: 'sit', label: 'Síť' },
+  { id: 'protokol', label: 'Protokol' },
+  { id: 'aplikace', label: 'Aplikace' },
+  { id: 'oziveni', label: 'Oživení' },
+  { id: 'omezeni', label: 'Omezení' },
+  { id: 'odchylky', label: 'Odchylky od návrhu' },
+] as const;
+
+const bomRows = BOM.map((b) => ({ ...b, price: b.price === null ? NOT_STATED : `${b.price} Kč` }));
+const bindRows = BINDINGS.map((b) => ({
+  pad: b.pad,
+  shortcut: b.shortcut ?? 'světla na decku',
+  text: b.text ?? 'bez textu',
+}));
+---
+
+<Base
+  title="Dokumentace ESPDeck: zapojení, kusovník, firmware a protokol"
+  description="Zapojení prototypu ESPDeck na ESP32-S3 drát po drátu, pravidla pinů, moduly, kusovník, firmware, síť, protokol a oživení."
+>
+  <Header />
+  <main id="obsah" class="wrap docs">
+    <aside class="side">
+      <nav aria-label="Kapitoly" data-docs-nav>
+        <ul>
+          {NAV.map((n) => <li><a href={`#${n.id}`}>{n.label}</a></li>)}
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="doc">
+      <section id="prehled" aria-labelledby="t-prehled">
+        <h1 id="t-prehled" class="doc-h1">Dokumentace</h1>
+        <p class="lede">
+          Skutečný stav prototypu na LaskaKit ESP32-S3 DevKit. Popisuje jen to, co existuje v kódu nebo bylo ověřeno na hardwaru.
+        </p>
+        <pre class="sys"><code>[ESP32-S3 deck] --HTTP--&gt; Bluesound (BluOS :11000), světla (:8181)
+       |  TCP :4545, JSON řádky, nalezení přes mDNS _espdeck._tcp
+       v
+[espdeck.exe na PC] --enigo--&gt; stisk klávesové zkratky</code></pre>
+      </section>
+
+      <section id="zapojeni" aria-labelledby="t-zapojeni">
+        <h2 id="t-zapojeni">Zapojení</h2>
+        <div class="warn" role="note" aria-label="Na co si dát pozor">
+          <ul>
+            {WARNINGS.map((w) => <li><strong>{w.title}</strong><p>{w.body}</p></li>)}
+          </ul>
+        </div>
+        <Wiring />
+      </section>
+
+      <section id="piny" aria-labelledby="t-piny">
+        <h2 id="t-piny">Pravidla pinů ESP32-S3</h2>
+        <DataTable caption="Omezení pinů na desce" cols={[{ k: 'pins', label: 'Piny', mono: true, primary: true }, { k: 'why', label: 'Proč' }]} rows={PIN_RULES} />
+        <p class="note">Na ESP32-S3 hodnota touchRead() při dotyku roste, na klasickém ESP32 klesá.</p>
+      </section>
+
+      <section id="moduly" aria-labelledby="t-moduly">
+        <h2 id="t-moduly">Moduly</h2>
+        <div class="mods">
+          {MODULES.map((m) => (
+            <article class="mod">
+              <h3><span class="mod-ref">{m.ref}</span> {m.name}</h3>
+              <dl>
+                {m.specs.map((s) => <div><dt>{s.k}</dt><dd>{s.v}</dd></div>)}
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="kusovnik" aria-labelledby="t-kusovnik">
+        <h2 id="t-kusovnik">Kusovník</h2>
+        <DataTable
+          caption={`Ceny s DPH u prodejce LaskaKit k ${PRICE_DATE}`}
+          cols={[
+            { k: 'item', label: 'Položka', primary: true },
+            { k: 'ref', label: 'Označení', mono: true },
+            { k: 'qty', label: 'Ks', mono: true },
+            { k: 'code', label: 'Kód', mono: true },
+            { k: 'price', label: 'Cena/ks', mono: true },
+          ]}
+          rows={bomRows}
+        />
+        <p class="note">Součet známých cen je {BOM_KNOWN_TOTAL} Kč. Cena desky, kabelů a plošek není uvedená, proto to není cena celého prototypu.</p>
+      </section>
+
+      <section id="firmware" aria-labelledby="t-firmware">
+        <h2 id="t-firmware">Firmware</h2>
+        <p>C++ a Arduino přes PlatformIO, knihovny U8g2 a ArduinoJson. Verze 0.1.0.</p>
+        <pre><code>cd ESP_C++_kod/test_obrazovky
+cp src/secrets.example.h src/secrets.h   # vyplnit Wi-Fi a adresy
+pio run -t upload
+pio device monitor                       # 115200 Bd</code></pre>
+
+        <h3>Ovládání</h3>
+        <DataTable caption="Gesta enkodéru" cols={[{ k: 'gesture', label: 'Gesto', primary: true }, { k: 'clock', label: 'Na Hodinách' }, { k: 'settings', label: 'V Nastavení' }]} rows={CONTROLS} />
+
+        <h3>Obrazovka Nastavení</h3>
+        <DataTable caption="Řádky Nastavení" cols={[{ k: 'row', label: 'Řádek', mono: true, primary: true }, { k: 'shows', label: 'Zobrazuje' }, { k: 'action', label: 'Akce stiskem' }]} rows={SETTINGS_ROWS} />
+
+        <h3>Dotyk</h3>
+        <dl class="steps">
+          {TOUCH_STEPS.map((s) => <div><dt>{s.k}</dt><dd>{s.v}</dd></div>)}
+        </dl>
+
+        <h3>Sériová konzole</h3>
+        <DataTable caption="Příkazy na 115200 Bd" cols={[{ k: 'k', label: 'Znak', mono: true, primary: true }, { k: 'v', label: 'Význam' }]} rows={SERIAL_CMDS} />
+      </section>
+
+      <section id="sit" aria-labelledby="t-sit">
+        <h2 id="t-sit">Síť</h2>
+        <p>
+          Wi-Fi v režimu STA, hostname espdeck. Čas z pool.ntp.org a time.google.com, střední Evropa včetně letního času.
+          Časové limity: připojení 1,5 s, odpověď 2,5 s.
+        </p>
+        <DataTable caption="Bluesound, BluOS HTTP API na portu 11000" cols={[{ k: 'action', label: 'Akce', primary: true }, { k: 'request', label: 'Požadavek', mono: true }, { k: 'note', label: 'Poznámka' }]} rows={NET_ROWS} />
+      </section>
+
+      <section id="protokol" aria-labelledby="t-protokol">
+        <h2 id="t-protokol">Protokol mezi deckem a PC</h2>
+        <p>
+          Deck je TCP server na portu 4545 a ohlašuje se přes mDNS jako _espdeck._tcp, hostname espdeck.local.
+          Jedna JSON zpráva na řádek. Drží jedno spojení, nové nahradí staré. Bez příchozích dat po 6 s obě strany spojení ukončí.
+        </p>
+        <DataTable caption="Deck posílá do PC" cols={[{ k: 'msg', label: 'Zpráva', mono: true, primary: true }, { k: 'when', label: 'Kdy' }]} rows={PROTOCOL_DECK} />
+        <DataTable caption="PC posílá do decku" cols={[{ k: 'msg', label: 'Zpráva', mono: true, primary: true }, { k: 'when', label: 'Účinek' }]} rows={PROTOCOL_PC} />
+      </section>
+
+      <section id="aplikace" aria-labelledby="t-aplikace">
+        <h2 id="t-aplikace">Aplikace</h2>
+        <p>Rust a egui/eframe 0.35, binárka espdeck.exe. Konfigurace je v %APPDATA%\ESPDeck\bindings.json.</p>
+        <pre><code>cargo run -p espdeck-ui
+cargo build --release
+cargo test -p espdeck-ui</code></pre>
+        <DataTable caption="Výchozí přiřazení plošek" cols={[{ k: 'pad', label: 'Ploška', mono: true, primary: true }, { k: 'shortcut', label: 'Zkratka', mono: true }, { k: 'text', label: 'Text na displeji', mono: true }]} rows={bindRows} />
+        <DataTable caption="Názvy kláves" cols={[{ k: 'k', label: 'Skupina', primary: true }, { k: 'v', label: 'Klávesy', mono: true }]} rows={KEY_NAMES} />
+      </section>
+
+      <section id="oziveni" aria-labelledby="t-oziveni">
+        <h2 id="t-oziveni">Oživení</h2>
+        <DataTable caption="Diagnostické nástroje firmwaru" cols={[{ k: 'tool', label: 'Nástroj', primary: true }, { k: 'run', label: 'Spuštění', mono: true }, { k: 'does', label: 'Co dělá' }]} rows={TOOLS} />
+        <h3>Co se při oživení zjistilo</h3>
+        <ul class="plain">
+          {FINDINGS.map((f) => <li>{f}</li>)}
+        </ul>
+        <h3>Kontrolní seznam</h3>
+        <Checklist />
+      </section>
+
+      <section id="omezeni" aria-labelledby="t-omezeni">
+        <h2 id="t-omezeni">Známá omezení</h2>
+        <DataTable caption="Omezení současného stavu" cols={[{ k: 'id', label: 'Číslo', mono: true, primary: true }, { k: 'text', label: 'Omezení' }]} rows={LIMITS} />
+      </section>
+
+      <section id="odchylky" aria-labelledby="t-odchylky">
+        <h2 id="t-odchylky">Odchylky od původního návrhu</h2>
+        <DataTable caption="První PDF počítalo s klasickým ESP32 a neplatí" cols={[{ k: 'area', label: 'Oblast', primary: true }, { k: 'before', label: 'Původní návrh' }, { k: 'now', label: 'Skutečnost' }]} rows={DEVIATIONS} />
+      </section>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .docs {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 80px);
+    padding-block: clamp(24px, 4vw, 56px);
+  }
+  .side nav {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+  }
+  .side ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .side a {
+    display: block;
+    padding: 6px 12px;
+    border-left: 2px solid var(--line);
+    color: var(--fg-2);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition:
+      color 150ms var(--ease-out),
+      border-color 150ms var(--ease-out);
+  }
+  .side a:hover {
+    color: var(--fg);
+    border-left-color: var(--fg-3);
+  }
+  .side a[aria-current='true'] {
+    color: var(--fg);
+    border-left-color: var(--copper-2);
+  }
+  .doc {
+    min-width: 0;
+    max-width: 880px;
+  }
+  .doc section {
+    padding-bottom: clamp(48px, 6vw, 80px);
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .doc-h1 {
+    font-size: var(--step-4);
+    letter-spacing: -0.04em;
+    margin-bottom: 20px;
+  }
+  .doc h2 {
+    font-size: var(--step-3);
+    margin-bottom: 20px;
+  }
+  .doc h3 {
+    font-size: var(--step-1);
+    margin: 32px 0 12px;
+  }
+  .doc p {
+    max-width: 65ch;
+  }
+  .doc :global(.dtable) {
+    margin-top: 16px;
+  }
+  .note {
+    margin-top: 12px;
+    color: var(--fg-2);
+  }
+  pre {
+    margin: 16px 0 0;
+    padding: 14px 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    white-space: break-spaces;
+    overflow-wrap: anywhere;
+  }
+  .sys {
+    margin-top: 24px;
+  }
+
+  .warn {
+    margin-bottom: 24px;
+    padding: 20px 20px 20px 28px;
+    background:
+      repeating-linear-gradient(-45deg, var(--copper) 0 4px, transparent 4px 10px) left / 8px 100% no-repeat,
+      var(--bg-2);
+    border: 1px solid var(--line-2);
+  }
+  .warn ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .warn p {
+    margin-top: 2px;
+    color: var(--fg-2);
+  }
+
+  .mods {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .mod {
+    padding: 20px;
+    background: var(--bg-2);
+  }
+  .mod h3 {
+    margin: 0 0 14px;
+  }
+  .mod-ref {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 400;
+    color: var(--copper-2);
+    margin-bottom: 4px;
+  }
+  .mod dl,
+  .steps {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .mod dt,
+  .steps dt {
+    font-size: var(--step--1);
+    color: var(--fg-3);
+  }
+  .steps dt {
+    font-weight: 600;
+    color: var(--fg);
+    font-size: 1rem;
+  }
+  .mod dd,
+  .steps dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .steps dd {
+    color: var(--fg-2);
+  }
+  .plain {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 8px;
+    max-width: 65ch;
+  }
+
+  @media (max-width: 900px) {
+    .docs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .side nav {
+      position: static;
+    }
+    .side ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .side a {
+      padding: 10px 12px;
+      min-height: 44px;
+      border: 1px solid var(--line-2);
+    }
+    .side a[aria-current='true'] {
+      border-color: var(--copper-2);
+    }
+    .mods {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

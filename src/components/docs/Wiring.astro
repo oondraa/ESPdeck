@@ -1,0 +1,324 @@
+---
+import { GROUP_ORDER, WIRE_GROUPS, WIRES, type Wire } from '../../data/espdeck';
+import {
+  BOARD,
+  ENC_BOX,
+  ENC_PINS,
+  ESP_PINS,
+  OLED_BOX,
+  OLED_PINS,
+  PAD_POS,
+  PAD_R,
+  ROUTES_BUILT,
+  USUP_BOX,
+  wiresOnPin,
+} from '../../lib/wiring';
+
+const byGroup = GROUP_ORDER.map((g) => ({ g, routes: ROUTES_BUILT.filter((r) => r.group === g) }));
+
+/* Svislá verze pro mobil: co řádek, to vodič, skutečná velikost písma při šířce 343 px. */
+const ROW = 46;
+const HEAD = 44;
+const sections: ReadonlyArray<{ title: string; module: Wire['module'] }> = [
+  { title: 'U2 OLED, kabel μŠup', module: 'oled' },
+  { title: 'U3 enkodér', module: 'enc' },
+  { title: 'E1 až E6 plošky', module: 'pad' },
+];
+let y = 12;
+const ladder = sections.map((s) => {
+  const wires = WIRES.filter((w) => w.module === s.module);
+  const headY = y;
+  const rows = wires.map((w, i) => ({ w, y: headY + HEAD + i * ROW }));
+  y = headY + HEAD + wires.length * ROW + 18;
+  return { ...s, headY, rows };
+});
+const ladderH = y;
+---
+
+<div data-wiring>
+  <div class="legend" role="group" aria-label="Skupiny vodičů">
+    {GROUP_ORDER.map((g) => (
+      <button type="button" class="lg" data-group-btn={g} aria-pressed="false">
+        <span class={`sw sw-${g}`} aria-hidden="true"></span>
+        {WIRE_GROUPS[g].label}
+      </button>
+    ))}
+  </div>
+
+  <div class="diagram-box wide">
+    <svg viewBox="0 0 1200 720" class="wsvg" role="img" aria-labelledby="wsvg-t wsvg-d" data-wsvg>
+      <title id="wsvg-t">Logické schéma zapojení ESPDeck</title>
+      <desc id="wsvg-d">
+        ESP32-S3 uprostřed. Vlevo enkodér: 5V na 3V3, GND, S1 na GPIO15, S2 na GPIO16, Key na GPIO17.
+        Vpravo OLED v konektoru μŠup: VCC, GND, SDA na GPIO42, SCL na GPIO2. Dole šest plošek na GPIO 4, 5, 6, 7, 8 a 1.
+      </desc>
+
+      <g class="part">
+        <rect x={BOARD.x} y={BOARD.y} width={BOARD.w} height={BOARD.h} class="pcb" />
+        <text x={BOARD.x + 16} y={BOARD.y + 28} class="t-part">U1 ESP32-S3-DevKit</text>
+        <rect x={USUP_BOX.x} y={USUP_BOX.y} width={USUP_BOX.w} height={USUP_BOX.h} class="usup" />
+        <text x={USUP_BOX.x + 10} y={USUP_BOX.y + 22} class="t-mini">konektor μŠup</text>
+        <text x={USUP_BOX.x + 10} y={USUP_BOX.y + 212} class="t-flag">spíná GPIO47</text>
+        <text x={BOARD.x + BOARD.w / 2} y={BOARD.y + BOARD.h - 42} class="t-mini" text-anchor="middle">dotykové kanály GPIO</text>
+      </g>
+
+      <g class="pins">
+        {ESP_PINS.map((p) => (
+          <g class="pin used" data-wires={wiresOnPin(p.key).join(' ')}>
+            <circle cx={p.x} cy={p.y} r="6" class="pin-dot" />
+            {p.side === 'B' ? (
+              <text x={p.x} y={p.y - 14} text-anchor="middle" class="t-pin">{p.label}</text>
+            ) : (
+              <text x={p.side === 'L' ? p.x + 14 : p.x - 14} y={p.y + 5} text-anchor={p.side === 'L' ? 'start' : 'end'} class="t-pin">{p.label}</text>
+            )}
+            <circle cx={p.x} cy={p.y} r="15" class="hit" />
+          </g>
+        ))}
+      </g>
+
+      <g class="part">
+        <rect x={OLED_BOX.x} y={OLED_BOX.y} width={OLED_BOX.w} height={OLED_BOX.h} class="pcb" />
+        <text x={OLED_BOX.x + 16} y={OLED_BOX.y + 28} class="t-part">U2 OLED SH1106</text>
+        <text x={OLED_BOX.x + 80} y={OLED_BOX.y + 60} class="t-mini">128×64</text>
+        <text x={OLED_BOX.x + 80} y={OLED_BOX.y + 84} class="t-mini">I²C 0x3C</text>
+        <text x={OLED_BOX.x + 80} y={OLED_BOX.y + 108} class="t-mini">pull-up 10 kΩ</text>
+        {OLED_PINS.map((p) => (
+          <g class="pin used" data-wires={String(p.wire)}>
+            <circle cx={p.x} cy={p.y} r="6" class="pin-dot" />
+            <text x={p.x + 14} y={p.y + 5} class="t-pin">{p.label}</text>
+            <circle cx={p.x} cy={p.y} r="15" class="hit" />
+          </g>
+        ))}
+      </g>
+
+      <g class="part">
+        <rect x={ENC_BOX.x} y={ENC_BOX.y} width={ENC_BOX.w} height={ENC_BOX.h} class="pcb" />
+        <text x={ENC_BOX.x + 16} y={ENC_BOX.y + 28} class="t-part">U3 enkodér</text>
+        <text x={ENC_BOX.x + 16} y={ENC_BOX.y + 56} class="t-mini">20 pulzů/ot.</text>
+        <text x={ENC_BOX.x + 16} y={ENC_BOX.y + 80} class="t-mini">RC filtr</text>
+        {ENC_PINS.map((p) => (
+          <g class="pin used" data-wires={String(p.wire)}>
+            <circle cx={p.x} cy={p.y} r="6" class="pin-dot" />
+            <text x={p.x - 14} y={p.y + 5} class="t-pin" text-anchor="end">{p.label}</text>
+            <circle cx={p.x} cy={p.y} r="15" class="hit" />
+          </g>
+        ))}
+        <text x="342" y="198" class="t-flag" text-anchor="middle">5V → 3V3</text>
+      </g>
+
+      <g class="part">
+        {PAD_POS.map((p) => (
+          <g class="pin used" data-wires={String(p.wire)}>
+            <circle cx={p.x} cy={p.y} r={PAD_R} class="pad-cu" />
+            <text x={p.x} y={p.y + 5} class="t-pad" text-anchor="middle">{p.id}</text>
+            <text x={p.x} y={p.y + 44} class="t-mini" text-anchor="middle">{p.gpio}</text>
+          </g>
+        ))}
+      </g>
+
+      <g class="wires">
+        {byGroup.map(({ g, routes }) => (
+          <g class={`wg wg-${g}`} data-wire-group={g}>
+            {routes.map((r) => (
+              <g class="wire" data-wire={r.n}>
+                <path d={r.d} class="w-halo" pathLength="1" />
+                <path d={r.d} class="w-line" pathLength="1" />
+              </g>
+            ))}
+          </g>
+        ))}
+      </g>
+    </svg>
+  </div>
+
+  <div class="diagram-box narrow">
+    <svg viewBox={`0 0 343 ${ladderH}`} class="ladder" role="img" aria-label="Svislé schéma zapojení: vlevo vývody modulů, vpravo piny ESP32-S3. Stejné údaje jsou v tabulce pod schématem.">
+      {ladder.map((s) => (
+        <g>
+          <text x="10" y={s.headY + 26} class="l-head">{s.title}</text>
+          {s.rows.map(({ w, y: ry }) => (
+            <g class={`wg-${w.group}`}>
+              <text x="10" y={ry + 27} class="l-t">{w.modulePin ?? w.moduleLabel.replace('Ploška ', '')}</text>
+              <line x1="74" y1={ry + 22} x2="186" y2={ry + 22} class="l-wire w-line" />
+              <circle cx="74" cy={ry + 22} r="4" class="l-dot" />
+              <circle cx="186" cy={ry + 22} r="4" class="l-dot" />
+              <text x="196" y={ry + 27} class="l-t l-esp">{w.espLabel}</text>
+            </g>
+          ))}
+        </g>
+      ))}
+    </svg>
+  </div>
+
+  <p class="dnote">Schéma je logické. Ukazuje, co je kam připojené, ne fyzickou polohu pinů na desce.</p>
+
+  <table class="dtable rt wtable" role="table">
+    <caption>Propojení drát po drátu: 3 moduly, 6 plošek, 15 vodičů, vše na 3,3 V</caption>
+    <thead role="rowgroup">
+      <tr role="row">
+        <th scope="col" role="columnheader">Vodič</th>
+        <th scope="col" role="columnheader">Modul</th>
+        <th scope="col" role="columnheader">Vývod</th>
+        <th scope="col" role="columnheader">ESP32-S3</th>
+        <th scope="col" role="columnheader">Funkce</th>
+      </tr>
+    </thead>
+    <tbody role="rowgroup">
+      {WIRES.map((w) => (
+        <tr role="row" data-wire-row={w.n} data-group={w.group} tabindex="0">
+          <td role="cell" class="mono rt-primary" data-label="Vodič">{w.n}</td>
+          <td role="cell" data-label="Modul">{w.moduleLabel}</td>
+          <td role="cell" class="mono" data-label="Vývod">{w.modulePin ?? 'plošný vodič'}</td>
+          <td role="cell" class="mono" data-label="ESP32-S3">{w.espLabel}</td>
+          <td role="cell" data-label="Funkce">{w.fn}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    background: none;
+    color: var(--fg-2);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition:
+      color 150ms var(--ease-out),
+      border-color 150ms var(--ease-out),
+      background-color 150ms var(--ease-out);
+  }
+  .lg:hover {
+    color: var(--fg);
+    border-color: var(--fg-3);
+  }
+  .lg[aria-pressed='true'] {
+    color: var(--fg);
+    border-color: var(--fg);
+    background: var(--bg-2);
+  }
+  .sw {
+    display: inline-block;
+    width: 18px;
+    height: 3px;
+    flex: none;
+  }
+  .sw-power { background: var(--w-power); }
+  .sw-gnd { background: var(--w-gnd); }
+  .sw-i2c { background: var(--w-i2c); }
+  .sw-enc { background: var(--w-enc); }
+  .sw-touch { background: var(--w-touch); }
+
+  .diagram-box {
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .narrow {
+    display: none;
+  }
+  .wsvg,
+  .ladder {
+    width: 100%;
+    height: auto;
+  }
+  .dnote {
+    margin-top: 10px;
+    color: var(--fg-3);
+    font-size: var(--step--1);
+  }
+  .wtable {
+    margin-top: 32px;
+  }
+  .wtable tbody tr {
+    cursor: pointer;
+    transition: background-color 150ms var(--ease-out);
+  }
+  .wtable tbody tr:hover,
+  .wtable tbody tr:global(.is-on) {
+    background: var(--bg-2);
+  }
+  .wtable tbody tr:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .wsvg :global(.pcb) { fill: var(--bg-3); stroke: var(--line-2); stroke-width: 1.5; }
+  .wsvg :global(.usup) { fill: var(--bg-2); stroke: var(--line-2); stroke-dasharray: 3 4; }
+  .wsvg :global(.pin-dot) { fill: var(--fg-2); stroke: var(--fg-2); stroke-width: 1.5; }
+  .wsvg :global(.hit) { fill: transparent; cursor: pointer; }
+  .wsvg :global(.pad-cu) { fill: var(--copper); cursor: pointer; }
+  .wsvg :global(text),
+  .ladder :global(text) { font-family: var(--font-mono); }
+  .wsvg :global(.t-part) { font-size: 20px; font-weight: 600; fill: var(--fg); }
+  .wsvg :global(.t-pin) { font-size: 18px; fill: var(--fg-2); }
+  .wsvg :global(.t-pad) { font-size: 18px; font-weight: 600; fill: var(--copper-ink); }
+  .wsvg :global(.t-mini) { font-size: 16px; fill: var(--fg-3); }
+  .wsvg :global(.t-flag) { font-size: 16px; font-weight: 600; fill: var(--copper-2); }
+
+  .wsvg :global(.w-halo),
+  .wsvg :global(.w-line) {
+    fill: none;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+  .wsvg :global(.w-halo) { stroke: var(--bg-2); stroke-width: 9; }
+  .wsvg :global(.w-line) { stroke-width: 3; }
+  :global(.wg-power) :global(.w-line) { stroke: var(--w-power); }
+  :global(.wg-gnd) :global(.w-line) { stroke: var(--w-gnd); }
+  :global(.wg-i2c) :global(.w-line) { stroke: var(--w-i2c); }
+  :global(.wg-enc) :global(.w-line) { stroke: var(--w-enc); }
+  :global(.wg-touch) :global(.w-line) { stroke: var(--w-touch); }
+  .wsvg :global(.wire),
+  .wsvg :global(.pin) { transition: opacity 180ms var(--ease-out); }
+  .wsvg[data-focus] :global(.wire:not(.is-on)) { opacity: 0.1; }
+  .wsvg[data-focus] :global(.wire.is-on .w-line) { stroke-width: 4.5; }
+  .wsvg[data-focus] :global(.pin.used:not(.is-on)) { opacity: 0.35; }
+  .wsvg :global(.pin.is-on .pin-dot) { fill: var(--fg); stroke: var(--fg); }
+  .wsvg :global(.pin.is-on .t-pin) { fill: var(--fg); font-weight: 700; }
+
+  .ladder :global(.l-head) { font-size: 14px; font-weight: 600; fill: var(--fg); }
+  .ladder :global(.l-t) { font-size: 14px; fill: var(--fg-2); }
+  .ladder :global(.l-esp) { fill: var(--fg); }
+  .ladder :global(.l-wire) { stroke-width: 3; }
+  .ladder :global(.l-dot) { fill: var(--fg-2); }
+
+  @media (max-width: 640px) {
+    .wtable tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0 12px;
+    }
+    .wtable :global(td.rt-primary) {
+      grid-column: 1 / -1;
+    }
+    .dtable.wtable td {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .dtable.wtable td[data-label='Funkce'] {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 720px) {
+    .wide,
+    .legend {
+      display: none;
+    }
+    .narrow {
+      display: block;
+    }
+  }
+</style>

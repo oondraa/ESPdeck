@@ -1,0 +1,40 @@
+---
+/** Tabulka plynoucí se stránkou. Na úzké šířce se řádky skládají do karet (viz .rt v global.css). */
+interface Col {
+  readonly k: string;
+  readonly label: string;
+  readonly mono?: boolean;
+  readonly primary?: boolean;
+}
+
+interface Props {
+  caption: string;
+  cols: readonly Col[];
+  rows: readonly object[];
+}
+
+const { caption, cols, rows } = Astro.props;
+const cell = (row: object, key: string): string => String((row as Record<string, unknown>)[key] ?? '');
+---
+
+<table class="dtable rt" role="table">
+  <caption>{caption}</caption>
+  <thead role="rowgroup">
+    <tr role="row">
+      {cols.map((c) => <th scope="col" role="columnheader">{c.label}</th>)}
+    </tr>
+  </thead>
+  <tbody role="rowgroup">
+    {rows.map((r) => (
+      <tr role="row">
+        {cols.map((c) => (
+          <td
+            role="cell"
+            data-label={c.label}
+            class:list={[{ mono: c.mono, 'rt-primary': c.primary }]}
+          >{cell(r, c.k)}</td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+</table>

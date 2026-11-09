@@ -1,33 +1,31 @@
 ---
 import PixelText from './PixelText.astro';
-import { AUTHOR_URL, DOC_URL, LICENSE_URL, REPO_URL, SOURCES } from '../data/espdeck';
+import { AUTHOR_URL, CONTRIBUTORS_URL, DOC_PDF_URL, LICENSE_URL, REPO_URL } from '../data/espdeck';
+import { withBase } from '../lib/url';
 ---
 
-<footer class="ftr cv" aria-labelledby="team-title">
+<footer class="ftr" id="tym" aria-labelledby="team-title">
   <div class="wrap">
     <div class="f-top">
-      <div class="team">
-        <h2 id="team-title" class="th">Tým</h2>
-        <p class="tl">
-          <a href={AUTHOR_URL} rel="noopener">Ondra (oondraa)</a> a přispěvatelé projektu ESPDeck.
+      <div>
+        <h2 id="team-title" class="h2">Tým a licence</h2>
+        <p class="f-lead">
+          ESPDeck vyvíjí <a href={AUTHOR_URL} rel="noopener">Ondra (oondraa)</a> a
+          <a href={CONTRIBUTORS_URL} rel="noopener">přispěvatelé</a>.
         </p>
-        <p class="tl"><span class="fill">[DOPLŇ: jména a role členů týmu]</span></p>
       </div>
-
+      <div class="f-lic">
+        <p>
+          Stahovat, sestavit, upravovat a používat smíš zdarma pro osobní a nekomerční účely.
+          Komerční použití jen po dohodě s autory. Při sdílení zachovej uvedení autorů a text licence.
+        </p>
+        <a href={LICENSE_URL} rel="noopener">Celé znění licence</a>
+      </div>
       <nav class="f-links" aria-label="Projekt">
-        <h3 class="mono">Projekt</h3>
         <ul>
+          <li><a href={withBase('dokumentace/')}>Dokumentace</a></li>
+          <li><a href={DOC_PDF_URL} rel="noopener">Dokumentace v PDF</a></li>
           <li><a href={REPO_URL} rel="noopener">Repozitář na GitHubu</a></li>
-          <li><a href={DOC_URL} rel="noopener">Dokumentace HW zapojení (PDF)</a></li>
-          <li><a href={LICENSE_URL} rel="noopener">Licence</a></li>
-          <li><a href="#stavba">Postav si vlastní</a></li>
-        </ul>
-      </nav>
-
-      <nav class="f-links" aria-label="Zdroje">
-        <h3 class="mono">Zdroje</h3>
-        <ul>
-          {SOURCES.map((s) => <li><a href={s.href} rel="noopener">{s.label}</a></li>)}
         </ul>
       </nav>
     </div>
@@ -36,35 +34,32 @@ import { AUTHOR_URL, DOC_URL, LICENSE_URL, REPO_URL, SOURCES } from '../data/esp
       <PixelText text="ESPDeck" height="100%" />
     </div>
 
-    <div class="f-bot mono">
-      <p>© 2026 Ondra (oondraa) a přispěvatelé projektu ESPDeck.</p>
-      <p>Licence pro osobní nekomerční použití. Komerční využití jen po dohodě s autory.</p>
-    </div>
+    <p class="f-bot">© 2026 Ondra (oondraa) a přispěvatelé projektu ESPDeck.</p>
   </div>
 </footer>
 
 <style>
   .ftr {
-    border-top: 1px solid var(--line-2);
-    padding-top: clamp(56px, 8vw, 104px);
-    padding-bottom: 32px;
+    border-top: 1px solid var(--line);
+    padding-top: var(--section);
+    padding-bottom: 24px;
   }
   .f-top {
     display: grid;
-    grid-template-columns: minmax(0, 6fr) minmax(0, 3fr) minmax(0, 4fr);
-    gap: 40px clamp(24px, 3vw, 48px);
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) minmax(0, 2fr);
+    gap: 32px clamp(24px, 3vw, 48px);
   }
-  .th {
-    font-size: var(--step-3);
-  }
-  .tl {
+  .f-lead {
     margin-top: 16px;
     font-size: var(--step-1);
   }
-  .f-links h3 {
-    font-weight: 500;
-    color: var(--fg-3);
-    margin-bottom: 12px;
+  .f-lic p {
+    color: var(--fg-2);
+  }
+  .f-lic a {
+    display: inline-block;
+    margin-top: 12px;
+    padding-block: 4px;
   }
   .f-links ul {
     list-style: none;
@@ -76,9 +71,8 @@ import { AUTHOR_URL, DOC_URL, LICENSE_URL, REPO_URL, SOURCES } from '../data/esp
   .f-links a {
     display: inline-block;
     padding: 6px 0;
-    font-size: 0.9375rem;
-    text-decoration: none;
     color: var(--fg-2);
+    text-decoration: none;
   }
   .f-links a:hover {
     color: var(--fg);
@@ -86,8 +80,8 @@ import { AUTHOR_URL, DOC_URL, LICENSE_URL, REPO_URL, SOURCES } from '../data/esp
     text-decoration-color: var(--copper);
   }
   .f-mark {
-    margin-top: clamp(56px, 8vw, 104px);
-    height: clamp(56px, 15vw, 210px);
+    margin-top: clamp(40px, 6vw, 80px);
+    height: clamp(44px, 15vw, 210px);
     color: var(--bg-3);
   }
   .f-mark :global(svg) {
@@ -95,15 +89,10 @@ import { AUTHOR_URL, DOC_URL, LICENSE_URL, REPO_URL, SOURCES } from '../data/esp
     height: 100% !important;
   }
   .f-bot {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px 24px;
-    margin-top: 24px;
+    margin-top: 16px;
     color: var(--fg-3);
     font-size: 0.75rem;
   }
-
   @media (max-width: 900px) {
     .f-top {
       grid-template-columns: minmax(0, 1fr);
