@@ -1,0 +1,74 @@
+---
+import { BRINGUP } from '../../data/espdeck';
+---
+
+<div class="chk" data-checklist>
+  <p class="chk-head">
+    <span>Hotovo <b data-done>0</b> z {BRINGUP.length}</span>
+    <button class="chk-reset" type="button" data-reset disabled>Vymazat</button>
+  </p>
+  <ol>
+    {BRINGUP.map((text, i) => (
+      <li>
+        <label>
+          <input type="checkbox" data-check={i} />
+          <span>{text}</span>
+        </label>
+      </li>
+    ))}
+  </ol>
+  <p class="sr-only" role="status" data-status></p>
+</div>
+
+<style>
+  .chk-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-2);
+  }
+  .chk-reset {
+    min-height: 44px;
+    padding: 0 12px;
+    background: none;
+    border: 1px solid var(--line-2);
+    cursor: pointer;
+  }
+  .chk-reset:hover:not(:disabled) {
+    border-color: var(--fg-3);
+  }
+  .chk-reset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  ol {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+  label {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-2);
+    cursor: pointer;
+    transition: background-color 150ms var(--ease-out);
+  }
+  label:hover {
+    background: var(--bg-3);
+  }
+  input {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    accent-color: var(--copper);
+  }
+  input:checked + span {
+    color: var(--fg-3);
+  }
+</style>
