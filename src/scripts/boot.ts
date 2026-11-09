@@ -1,5 +1,5 @@
-import { initSimulator } from './simulator';
-import { initChecklist, initCopy, initHeader, initTheme, initWiring } from './ui';
+import { initChecklist, initCopy, initHeader, initTheme, initWiring, initDocsNav } from './ui';
+import { initDeck } from './deck';
 
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -16,9 +16,9 @@ run('header', initHeader);
 run('copy', initCopy);
 run('checklist', initChecklist);
 run('wiring', initWiring);
-run('simulator', () => {
-  const sim = document.querySelector<HTMLElement>('[data-sim]');
-  if (sim) initSimulator(sim, reduce);
+run('docs', initDocsNav);
+run('deck', () => {
+  initDeck();
 });
 
 if (!reduce) {

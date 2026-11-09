@@ -1,107 +1,66 @@
 ---
 import { PADS, REPO_URL } from '../data/espdeck';
-
-const TICKS = Array.from({ length: 20 }, (_, i) => i * 18);
+import { withBase } from '../lib/url';
 ---
 
-<section class="hero" id="top" aria-labelledby="hero-title">
+<section class="hero" id="top" aria-labelledby="hero-title" data-hero>
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <h1 id="hero-title" class="hero-title">ESPDeck</h1>
       <p class="hero-lede">
-        Ovládací panel na ESP32: displej 128×64, šest měděných dotykových plošek a otočný enkodér.
-        Celé to jede z jednoho railu 3,3 V.
+        Ovládací panel na ESP32-S3. Hodiny, hlasitost a světla přes Wi-Fi, klávesové zkratky přes aplikaci na počítači.
       </p>
       <div class="hero-cta">
-        <a class="btn btn--primary" href="#stavba">Postav si vlastní <span class="arrow" aria-hidden="true">↓</span></a>
-        <a class="btn" href={REPO_URL} rel="noopener">Zobrazit na GitHubu <span class="arrow" aria-hidden="true">↗</span></a>
+        <a class="btn btn--primary" href={withBase('dokumentace/')}>Dokumentace</a>
+        <a class="btn" href={REPO_URL} rel="noopener">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
       </div>
     </div>
 
-    <figure class="sim" data-sim aria-labelledby="sim-cap">
-      <div class="sim-board">
-        <span class="corner c-tl" aria-hidden="true"></span>
-        <span class="corner c-tr" aria-hidden="true"></span>
-        <span class="corner c-bl" aria-hidden="true"></span>
-        <span class="corner c-br" aria-hidden="true"></span>
+    <figure class="hero-model">
+      <div class="stage-host" data-stage-host="hero">
+        <img
+          class="stage-poster"
+          src={withBase('poster-hero.webp')}
+          srcset={`${withBase('poster-hero-720.webp')} 720w, ${withBase('poster-hero.webp')} 1440w`}
+          sizes="(max-width: 960px) 100vw, 58vw"
+          width="1440"
+          height="1080"
+          alt="Prototyp ESPDeck na stole: černá deska ESP32-S3, OLED modul, enkodér a šest plošek propojených vodiči."
+          fetchpriority="high"
+          decoding="async"
+        />
+        <div class="stage-mount" data-stage-mount></div>
+        {PADS.map((_, i) => <div class="hot" data-hot-pad={i} aria-hidden="true"></div>)}
+        <div class="hot hot--knob" data-hot-knob aria-hidden="true"></div>
+      </div>
 
-        <div class="sim-oled">
-          <p class="anno mono" aria-hidden="true">U2 SH1106 / 128×64 / I²C 0x3C</p>
-          <div class="oled-bezel">
-            <div class="oled-glass">
-              <canvas
-                width="128"
-                height="64"
-                data-sim-canvas
-                role="img"
-                aria-label="Displej testovacího firmwaru: ENC: 0, KEY: -, žádná ploška se nedotýká."
-              ></canvas>
-            </div>
-          </div>
-          <p class="sim-log mono" aria-hidden="true" data-sim-log>setup()</p>
+      <div class="rail" role="group" aria-label="Ovládání simulátoru">
+        <div class="rail-oled">
+          <canvas
+            data-sim-canvas
+            width="512"
+            height="256"
+            role="img"
+            aria-label="Displej: obrazovka Hodiny."
+          ></canvas>
         </div>
-
-        <div class="sim-enc">
-          <p class="anno mono" aria-hidden="true">U3 enkodér / 20 pulzů/ot.</p>
-          <div
-            class="knob"
-            role="spinbutton"
-            tabindex="0"
-            aria-label="Enkodér. Otáčej šipkami, kolečkem myši nebo tažením. Enter nebo mezerník drží stisk osy."
-            aria-valuenow="0"
-            aria-valuetext="ENC 0"
-            data-sim-knob
-          >
-            <svg viewBox="-100 -100 200 200" aria-hidden="true">
-              <g class="ticks">
-                {TICKS.map((a) => (
-                  <line x1="0" y1="-94" x2="0" y2="-84" transform={`rotate(${a})`} />
-                ))}
-              </g>
-              <g data-sim-rotor>
-                <circle class="knob-body" r="74" />
-                <g class="knurl">
-                  {Array.from({ length: 40 }, (_, i) => (
-                    <line x1="0" y1="-74" x2="0" y2="-66" transform={`rotate(${i * 9})`} />
-                  ))}
-                </g>
-                <line class="knob-mark" x1="0" y1="-62" x2="0" y2="-40" />
-              </g>
-            </svg>
-            <button
-              class="knob-cap"
-              type="button"
-              tabindex="-1"
-              aria-hidden="true"
-              data-sim-key
-            ><span class="mono">KEY</span></button>
-          </div>
-        </div>
-
-        <div class="sim-pads" role="group" aria-label="Šest dotykových plošek">
-          {PADS.map((p, i) => (
-            <div class="pad-cell">
-              <button
-                class="pad"
-                type="button"
-                aria-pressed="false"
-                aria-label={`Ploška ${p.id}, GPIO${p.gpio}, kanál ${p.touch}. Klávesa ${i + 1}.`}
-                data-sim-pad={i}
-              >
-                <span class="pad-cu" aria-hidden="true"></span>
-              </button>
-              <span class="pad-lbl mono" aria-hidden="true">{p.id}<br /><span>GPIO{p.gpio}</span></span>
-              {i === 0 && <span class="pad-dim mono" aria-hidden="true">Ø 12</span>}
-            </div>
+        <div class="rail-pads">
+          {PADS.map((_p, i) => (
+            <button class="rail-pad" type="button" aria-pressed="false" aria-label={`Ploška ${i + 1}`} data-rail-pad={i}>
+              <span aria-hidden="true">{i + 1}</span>
+            </button>
           ))}
+        </div>
+        <div class="rail-enc">
+          <button class="rail-btn" type="button" aria-label="Otočit enkodérem doleva" data-rail-turn="-1"><span aria-hidden="true">−</span></button>
+          <button class="rail-btn rail-btn--press" type="button" aria-label="Stisk enkodéru, podržením přepneš obrazovku" data-rail-press>Stisk</button>
+          <button class="rail-btn" type="button" aria-label="Otočit enkodérem doprava" data-rail-turn="1"><span aria-hidden="true">+</span></button>
         </div>
       </div>
 
-      <figcaption id="sim-cap" class="sim-cap">
-        <span>Ukázka obrazovky testovacího firmwaru (kap. 8). Rozložení je ilustrační, kryt zatím neexistuje.</span>
-        <span class="mono sim-keys">
-          <kbd>1</kbd>–<kbd>6</kbd> plošky · <kbd>←</kbd><kbd>→</kbd> enkodér · <kbd>Enter</kbd> stisk
-        </span>
+      <figcaption class="hero-cap">
+        <span>Simulátor běží podle kódu firmwaru. Podržením stisku přepneš na Nastavení. Vzhled a rozložení dílů jsou ilustrační.</span>
+        <code class="hero-log" data-sim-log aria-live="off">{'{"t":"hello","fw":"0.1.0","pads":6}'}</code>
       </figcaption>
     </figure>
   </div>
@@ -109,27 +68,26 @@ const TICKS = Array.from({ length: 20 }, (_, i) => i * 18);
 
 <style>
   .hero {
-    padding-top: clamp(32px, 6vw, 80px);
-    padding-bottom: var(--section);
+    padding-block: clamp(24px, 4vw, 56px) clamp(56px, 7vw, 96px);
   }
   .hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: clamp(32px, 5vw, 80px);
-    align-items: end;
+    gap: clamp(32px, 4vw, 64px);
+    align-items: center;
   }
   .hero-title {
-    font-size: clamp(3.5rem, 8.4vw, 9.25rem);
+    font-size: clamp(4rem, 8.4vw, 9rem);
     letter-spacing: -0.06em;
-    line-height: 0.86;
+    line-height: 0.9;
     font-weight: 700;
-    margin-left: -0.05em;
+    margin-left: -0.04em;
   }
   .hero-lede {
-    margin-top: clamp(24px, 3vw, 40px);
+    margin-top: clamp(20px, 2.4vw, 32px);
     font-size: var(--step-1);
-    line-height: 1.45;
-    max-width: 34ch;
+    line-height: 1.4;
+    max-width: 30ch;
     color: var(--fg-2);
   }
   .hero-cta {
@@ -138,285 +96,118 @@ const TICKS = Array.from({ length: 20 }, (_, i) => i * 18);
     gap: 12px;
     margin-top: 32px;
   }
-
-  /* ---------- Simulátor ---------- */
-  .sim {
+  .hero-model {
     margin: 0;
+    min-width: 0;
   }
-  .sim-board {
-    position: relative;
+  .rail {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(120px, 26%, 200px);
-    grid-template-areas:
-      'oled enc'
-      'pads pads';
-    gap: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 40px);
-    padding: clamp(20px, 3.4vw, 44px);
-    border: 1px dashed var(--line-2);
-    background:
-      radial-gradient(circle, color-mix(in srgb, var(--fg) 9%, transparent) 1px, transparent 1.2px) 0 0 / 16px 16px;
-  }
-  .corner {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-color: var(--copper);
-    border-style: solid;
-    border-width: 0;
-  }
-  .c-tl { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
-  .c-tr { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
-  .c-bl { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; }
-  .c-br { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
-
-  .anno {
-    font-size: 0.6875rem;
-    color: var(--fg-3);
-    margin-bottom: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .sim-oled {
-    grid-area: oled;
-    min-width: 0;
-  }
-  .oled-bezel {
-    background: var(--glass);
-    padding: 6% 5% 8%;
-    border: 1px solid var(--line-2);
-  }
-  .oled-glass {
-    position: relative;
-    aspect-ratio: 2 / 1;
-    background: var(--oled-off);
-  }
-  .oled-glass canvas {
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-  }
-  .oled-glass::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(to right, rgb(0 0 0 / 0.55) 0.6px, transparent 0.6px),
-      linear-gradient(to bottom, rgb(0 0 0 / 0.55) 0.6px, transparent 0.6px);
-    background-size: calc(100% / 128) calc(100% / 64);
-  }
-  .sim-log {
-    margin-top: 10px;
-    font-size: 0.6875rem;
-    color: var(--fg-3);
-    min-height: 1.5em;
-  }
-
-  .sim-enc {
-    grid-area: enc;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .knob {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    margin-top: auto;
-    border-radius: 50%;
-    touch-action: none;
-    cursor: grab;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .knob:active {
-    cursor: grabbing;
-  }
-  .knob:focus-visible {
-    outline-offset: 6px;
-  }
-  .knob svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-  .ticks line {
-    stroke: var(--fg-3);
-    stroke-width: 2;
-  }
-  .knob-body {
-    fill: var(--bg-3);
-    stroke: var(--line-2);
-    stroke-width: 1.5;
-  }
-  .knurl line {
-    stroke: var(--line-2);
-    stroke-width: 2;
-  }
-  .knob-mark {
-    stroke: var(--copper);
-    stroke-width: 5;
-    stroke-linecap: square;
-  }
-  [data-sim-rotor] {
-    transform-box: view-box;
-    transform-origin: 0 0;
-    will-change: transform;
-  }
-  .knob-cap {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 38%;
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    border: 1px solid var(--line-2);
+    grid-template-columns: minmax(96px, 136px) minmax(0, 1fr) auto;
+    gap: clamp(12px, 1.6vw, 20px);
+    align-items: stretch;
+    padding: 10px;
     background: var(--bg-2);
-    color: var(--fg-2);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    transition:
-      transform 90ms var(--ease-out),
-      background-color 90ms var(--ease-out),
-      color 90ms var(--ease-out);
+    border: 1px solid var(--line);
   }
-  .knob-cap span {
-    font-size: 0.625rem;
+  .rail-oled {
+    background: #000;
+    aspect-ratio: 2 / 1;
+    align-self: center;
   }
-  .knob-cap:hover {
-    color: var(--fg);
-    border-color: var(--fg-3);
+  .rail-oled canvas {
+    width: 100%;
+    height: 100%;
   }
-  .knob[data-key] .knob-cap {
-    transform: translate(-50%, -50%) scale(0.92);
-    background: var(--copper);
-    border-color: var(--copper);
-    color: var(--copper-ink);
-  }
-
-  .sim-pads {
-    grid-area: pads;
+  .rail-pads {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: clamp(8px, 1.6vw, 20px);
+    gap: 6px;
   }
-  .pad-cell {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    gap: 10px;
-  }
-  .pad {
-    width: 100%;
-    max-width: 76px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    padding: 9%;
-    border: 1px dashed var(--line-2);
-    background: transparent;
+  .rail-pad,
+  .rail-btn {
+    min-height: 44px;
+    border: 1px solid var(--line-2);
+    background: var(--bg);
+    color: var(--fg-2);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
     cursor: pointer;
-    touch-action: none;
+    touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
-  }
-  .pad-cu {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--copper-2) 85%, #fff) 0, transparent 42%),
-      var(--copper);
     transition:
-      transform 90ms var(--ease-out),
-      filter 90ms var(--ease-out);
+      background-color 120ms var(--ease-out),
+      border-color 120ms var(--ease-out),
+      color 120ms var(--ease-out),
+      transform 90ms var(--ease-out);
   }
-  .pad:hover .pad-cu {
-    filter: brightness(1.08);
+  .rail-pad:hover,
+  .rail-btn:hover {
+    border-color: var(--fg-3);
+    color: var(--fg);
   }
-  .pad[aria-pressed='true'] .pad-cu {
-    transform: scale(0.9);
-    filter: brightness(0.82);
+  .rail-pad[aria-pressed='true'],
+  .rail-pad:active,
+  .rail-btn:active {
+    background: var(--copper);
+    border-color: var(--copper);
+    color: var(--copper-ink);
+    transform: translateY(1px);
   }
-  .pad:focus-visible {
-    outline-offset: 4px;
+  .rail-enc {
+    display: grid;
+    grid-template-columns: 44px auto 44px;
+    gap: 6px;
   }
-  .pad-lbl {
-    font-size: 0.6875rem;
-    line-height: 1.3;
-    text-align: center;
-    color: var(--fg-2);
+  .rail-btn--press {
+    padding-inline: 14px;
   }
-  .pad-lbl span {
-    color: var(--fg-3);
-  }
-  .pad-dim {
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.625rem;
-    color: var(--copper-2);
-    white-space: nowrap;
-  }
-
-  .sim-cap {
+  .hero-cap {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 8px 24px;
-    margin-top: 14px;
-    font-size: 0.875rem;
-    color: var(--fg-2);
-  }
-  .sim-keys {
-    font-size: 0.75rem;
+    gap: 6px 24px;
+    margin-top: 10px;
+    font-size: var(--step--1);
     color: var(--fg-3);
   }
-  kbd {
-    display: inline-block;
-    min-width: 1.6em;
-    padding: 0 0.3em;
-    border: 1px solid var(--line-2);
-    font-size: 0.6875rem;
-    text-align: center;
+  .hero-cap span {
+    max-width: 58ch;
+  }
+  .hero-log {
+    font-size: 0.75rem;
     color: var(--fg-2);
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 960px) {
     .hero-grid {
       grid-template-columns: minmax(0, 1fr);
-      align-items: start;
     }
     .hero-title {
-      font-size: clamp(4rem, 22vw, 9rem);
+      font-size: clamp(4.25rem, 21vw, 8rem);
+    }
+    .hero-lede {
+      max-width: 36ch;
     }
   }
   @media (max-width: 520px) {
-    .sim-board {
-      grid-template-columns: minmax(0, 1fr) 34%;
-      padding: 16px;
+    .rail {
+      grid-template-columns: minmax(96px, 120px) minmax(0, 1fr);
+      grid-template-areas:
+        'oled enc'
+        'pads pads';
     }
-    .sim-oled .anno,
-    .sim-enc .anno {
-      font-size: 0.5625rem;
+    .rail-oled {
+      grid-area: oled;
     }
-    .pad-lbl span {
-      display: none;
+    .rail-enc {
+      grid-area: enc;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
     }
-    .sim-keys {
-      display: none;
-    }
-  }
-  @media (hover: none) {
-    .sim-keys {
-      display: none;
+    .rail-pads {
+      grid-area: pads;
     }
   }
 </style>

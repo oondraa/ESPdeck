@@ -1,0 +1,107 @@
+---
+import { BINDINGS } from '../data/espdeck';
+---
+
+<section class="section app" id="aplikace" aria-labelledby="app-title">
+  <div class="wrap app-grid">
+    <div class="app-text">
+      <h2 id="app-title" class="h2">Aplikace v Rustu mačká zkratky</h2>
+      <p class="lede app-lede">
+        Sama najde deck v síti a běží i při minimalizovaném okně. Každé plošce přiřadíš zkratku a text, který se po provedení ukáže na displeji.
+      </p>
+      <p class="app-note">
+        Funguje obrazovka Connections. Editor Hardware a Functions je zatím maketa s ukázkovými daty.
+      </p>
+    </div>
+
+    <ul class="pads" aria-label="Výchozí přiřazení plošek">
+      {BINDINGS.map((b) => (
+        <li class:list={['pad', { 'pad--deck': b.shortcut === null }]}>
+          <span class="pad-n">Ploška {b.pad}</span>
+          {b.shortcut ? (
+            <>
+              <kbd class="pad-key">{b.shortcut}</kbd>
+              <span class="pad-oled">{b.text}</span>
+            </>
+          ) : (
+            <span class="pad-key">Světla</span>
+          )}
+          {b.shortcut === null && <span class="pad-oled">Přímo z decku</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .app-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: clamp(32px, 5vw, 80px);
+    align-items: end;
+  }
+  .app-lede {
+    margin-top: 20px;
+  }
+  .app-note {
+    margin-top: 20px;
+    padding-left: 14px;
+    border-left: 2px solid var(--copper-2);
+    color: var(--fg-2);
+    max-width: 44ch;
+  }
+  .pads {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .pad {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: clamp(128px, 14vw, 200px);
+    padding: clamp(14px, 1.6vw, 22px);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    transition: border-color 160ms var(--ease-out);
+  }
+  .pad:hover {
+    border-color: var(--line-2);
+  }
+  .pad--deck {
+    background: repeating-linear-gradient(-45deg, var(--bg-3) 0 2px, var(--bg-2) 2px 9px);
+  }
+  .pad-n {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-3);
+  }
+  .pad-key {
+    margin-top: auto;
+    font-family: var(--font-sans);
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .pad-oled {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--copper-2);
+  }
+
+  @media (max-width: 900px) {
+    .app-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .pads {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

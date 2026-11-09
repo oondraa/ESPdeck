@@ -1,52 +1,46 @@
 ---
 import PixelText from './PixelText.astro';
 import { REPO_URL } from '../data/espdeck';
+import { withBase } from '../lib/url';
 
+const home = withBase('');
 const links = [
-  { href: '#uvnitr', label: 'Uvnitř', primary: false },
-  { href: '#zapojeni', label: 'Zapojení', primary: true },
-  { href: '#stavba', label: 'Stavba', primary: true },
-  { href: '#parametry', label: 'Parametry', primary: true },
-  { href: '#kusovnik', label: 'Kusovník', primary: true },
-  { href: '#firmware', label: 'Firmware', primary: true },
-  { href: '#oziveni', label: 'Oživení', primary: true },
-  { href: '#stav', label: 'Stav a licence', primary: false },
+  { href: `${home}#umi`, section: true, label: 'Co umí' },
+  { href: `${home}#jak`, section: true, label: 'Jak funguje' },
+  { href: `${home}#uvnitr`, section: true, label: 'Uvnitř' },
+  { href: `${home}#aplikace`, section: true, label: 'Aplikace' },
+  { href: `${home}#stav`, section: true, label: 'Stav' },
+  { href: withBase('dokumentace/'), section: false, label: 'Dokumentace' },
 ] as const;
 ---
 
 <header class="hdr" data-header>
   <div class="wrap hdr-in">
-    <a class="brand" href="#top" aria-label="ESPDeck, na začátek stránky">
+    <a class="brand" href={home} aria-label="ESPDeck, úvodní stránka">
       <PixelText text="ESPDeck" height="15px" />
     </a>
 
-    <nav class="nav" aria-label="Sekce">
+    <nav class="nav" aria-label="Hlavní">
       <ul>
-        {links.filter((l) => l.primary).map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        {links.map((l) => <li><a href={l.href} data-section={l.section ? '' : undefined}>{l.label}</a></li>)}
       </ul>
     </nav>
 
     <div class="tools">
-      <button class="theme" type="button" data-theme-toggle aria-label="Přepnout světlý a tmavý motiv">
+      <button class="tool theme" type="button" data-theme-toggle aria-label="Přepnout světlý a tmavý motiv">
         <span class="theme-ind" aria-hidden="true"><span></span></span>
         <span class="theme-txt mono" data-theme-label>Motiv</span>
       </button>
-      <a class="gh mono" href={REPO_URL} rel="noopener">GitHub</a>
-      <button
-        class="menu-btn mono"
-        type="button"
-        aria-expanded="false"
-        aria-controls="menu"
-        data-menu-btn
-      >Menu</button>
+      <a class="tool mono" href={REPO_URL} rel="noopener">GitHub</a>
+      <button class="tool menu-btn mono" type="button" aria-expanded="false" aria-controls="menu" data-menu-btn>Menu</button>
     </div>
   </div>
 
   <div class="menu" id="menu" hidden data-menu>
-    <nav class="wrap" aria-label="Sekce (mobilní)">
-      <ol>
+    <nav class="wrap" aria-label="Hlavní (mobilní)">
+      <ul>
         {links.map((l) => <li><a href={l.href} data-menu-link>{l.label}</a></li>)}
-      </ol>
+      </ul>
     </nav>
   </div>
 </header>
@@ -57,7 +51,7 @@ const links = [
     top: 0;
     z-index: 40;
     height: var(--header-h);
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    background: var(--bg);
     border-bottom: 1px solid transparent;
     transition: border-color 200ms var(--ease-out);
   }
@@ -110,13 +104,11 @@ const links = [
     align-items: center;
     gap: 4px;
   }
-  .theme,
-  .gh,
-  .menu-btn {
+  .tool {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 10px;
     border: 1px solid transparent;
     background: none;
@@ -124,12 +116,20 @@ const links = [
     text-decoration: none;
     cursor: pointer;
     font-size: var(--step--1);
+    transition:
+      color 150ms var(--ease-out),
+      border-color 150ms var(--ease-out);
   }
-  .theme:hover,
-  .gh:hover,
-  .menu-btn:hover {
+  .tool:hover {
     color: var(--fg);
     border-color: var(--line-2);
+  }
+  .tool:active {
+    transform: translateY(1px);
+  }
+  .theme-txt {
+    min-width: 6ch;
+    text-align: left;
   }
   .theme-ind {
     width: 14px;
@@ -151,32 +151,19 @@ const links = [
     background: var(--bg);
     border-bottom: 1px solid var(--line);
   }
-  .menu ol {
+  .menu ul {
     list-style: none;
     margin: 0;
     padding: 8px 0 24px;
-    counter-reset: m;
-  }
-  .menu li {
-    counter-increment: m;
   }
   .menu a {
-    display: flex;
-    gap: 16px;
-    align-items: baseline;
+    display: block;
     padding: 12px 0;
     font-size: var(--step-2);
     font-weight: 600;
     letter-spacing: -0.02em;
     text-decoration: none;
     border-top: 1px solid var(--line);
-  }
-  .menu a::before {
-    content: counter(m, decimal-leading-zero);
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    font-weight: 400;
-    color: var(--copper-2);
   }
 
   @media (max-width: 1080px) {

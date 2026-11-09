@@ -1,0 +1,250 @@
+---
+import { FLOW_EVENTS } from '../data/espdeck';
+
+const first = FLOW_EVENTS[0];
+---
+
+<section class="section how" id="jak" aria-labelledby="how-title" data-flow-root data-route={first?.route}>
+  <div class="wrap">
+    <h2 id="how-title" class="h2 how-h">Deck je středem sítě</h2>
+
+    <div class="net">
+      <div class="node node--audio" data-node="audio">
+        <h3>Bluesound</h3>
+        <p>BluOS HTTP API, port 11000</p>
+      </div>
+      <div class="node node--lights" data-node="lights">
+        <h3>Světla</h3>
+        <p>Lokální server, port 8181</p>
+      </div>
+
+      <div class="link link--audio" aria-hidden="true"><i></i></div>
+      <div class="link link--lights" aria-hidden="true"><i></i></div>
+
+      <div class="node node--deck">
+        <h3>ESP32-S3 deck</h3>
+        <p>Síť a spojení s PC běží v samostatných úlohách FreeRTOS na jádře 0. Displej na ně nikdy nečeká.</p>
+      </div>
+
+      <div class="link link--pc" aria-hidden="true"><i></i></div>
+
+      <div class="node node--pc" data-node="pc">
+        <h3>espdeck.exe</h3>
+        <p>TCP 4545, JSON po řádcích. Deck najde přes mDNS jako _espdeck._tcp a zmáčkne zkratku přes enigo.</p>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-btns" role="group" aria-label="Vyber událost">
+        {FLOW_EVENTS.map((e, i) => (
+          <button
+            class="flow-btn"
+            type="button"
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            data-flow={e.id}
+            data-route={e.route}
+            data-out={e.out}
+            data-back={e.back}
+          >{e.label}</button>
+        ))}
+      </div>
+      <dl class="flow-log">
+        <div><dt>Odchází z decku</dt><dd><code data-flow-out>{first?.out}</code></dd></div>
+        <div><dt>Vrací se</dt><dd><code data-flow-back>{first?.back}</code></dd></div>
+      </dl>
+    </div>
+
+    <p class="how-note">Deck posílá jen události. Co se má na počítači stát, ví jen aplikace.</p>
+  </div>
+</section>
+
+<style>
+  .how {
+    background: var(--bg-2);
+    border-block: 1px solid var(--line);
+  }
+  .how-h {
+    max-width: none;
+  }
+  .net {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(40px, 1fr) minmax(0, 4fr) minmax(40px, 1fr) minmax(0, 3fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'audio laudio deck lpc pc'
+      'lights llights deck lpc pc';
+    gap: 12px 0;
+    margin-top: clamp(32px, 4vw, 56px);
+  }
+  .node {
+    padding: 20px;
+    border: 1px solid var(--line-2);
+    background: var(--bg);
+    transition: border-color 200ms var(--ease-out);
+  }
+  .node h3 {
+    font-size: var(--step-1);
+  }
+  .node p {
+    margin-top: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    color: var(--fg-2);
+  }
+  .node--audio { grid-area: audio; }
+  .node--lights { grid-area: lights; }
+  .node--pc { grid-area: pc; display: flex; flex-direction: column; justify-content: center; }
+  .node--deck {
+    grid-area: deck;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--copper);
+    border-color: var(--copper);
+    color: var(--copper-ink);
+  }
+  .node--deck p {
+    color: inherit;
+  }
+  .link {
+    position: relative;
+    align-self: center;
+    height: 2px;
+    background: var(--line-2);
+    overflow: hidden;
+  }
+  .link i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    background: var(--copper-2);
+    opacity: 0;
+  }
+  .link--audio { grid-area: laudio; }
+  .link--lights { grid-area: llights; }
+  .link--pc { grid-area: lpc; }
+
+  [data-route='audio'] .node--audio,
+  [data-route='lights'] .node--lights,
+  [data-route='pc'] .node--pc {
+    border-color: var(--copper-2);
+  }
+  [data-route='audio'] .link--audio,
+  [data-route='lights'] .link--lights,
+  [data-route='pc'] .link--pc {
+    background: var(--copper-2);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-run][data-route='audio'] .link--audio i,
+    [data-run][data-route='lights'] .link--lights i {
+      background: var(--fg);
+      animation: packet-left 620ms var(--ease-out);
+    }
+    [data-run][data-route='pc'] .link--pc i {
+      background: var(--fg);
+      animation: packet-right 620ms var(--ease-out);
+    }
+  }
+  @keyframes packet-left {
+    from { opacity: 1; transform: translateX(260%); }
+    to { opacity: 1; transform: translateX(-100%); }
+  }
+  @keyframes packet-right {
+    from { opacity: 1; transform: translateX(-100%); }
+    to { opacity: 1; transform: translateX(260%); }
+  }
+
+  .flow {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 24px clamp(24px, 4vw, 64px);
+    margin-top: clamp(24px, 3vw, 40px);
+    align-items: start;
+  }
+  .flow-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .flow-btn {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    background: none;
+    cursor: pointer;
+    transition:
+      background-color 150ms var(--ease-out),
+      border-color 150ms var(--ease-out),
+      color 150ms var(--ease-out);
+  }
+  .flow-btn:hover {
+    border-color: var(--fg-3);
+  }
+  .flow-btn[aria-pressed='true'] {
+    background: var(--fg);
+    border-color: var(--fg);
+    color: var(--bg);
+  }
+  .flow-log {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .flow-log div {
+    display: grid;
+    grid-template-columns: minmax(110px, 1fr) minmax(0, 3fr);
+    gap: 4px 16px;
+  }
+  .flow-log dt {
+    color: var(--fg-3);
+    font-size: var(--step--1);
+    padding-top: 2px;
+  }
+  .flow-log dd {
+    margin: 0;
+    min-width: 0;
+  }
+  .flow-log code {
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+  .how-note {
+    margin-top: clamp(24px, 3vw, 40px);
+    font-size: var(--step-1);
+    max-width: 44ch;
+  }
+
+  @media (max-width: 860px) {
+    .net {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      grid-template-areas: 'audio' 'laudio' 'lights' 'llights' 'deck' 'lpc' 'pc';
+      gap: 0;
+    }
+    .link {
+      justify-self: center;
+      width: 2px;
+      height: 28px;
+    }
+    .link i {
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 40%;
+    }
+    .link--lights {
+      height: 28px;
+    }
+    [data-run][data-route] .link i {
+      animation: none;
+      opacity: 1;
+    }
+    .flow {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 480px) {
+    .flow-log div {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

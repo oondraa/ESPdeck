@@ -1,30 +1,29 @@
 /**
- * Jediný zdroj faktů pro web. Vše přepsáno z dokumentu
- * „První návrh dokumentace HW zapojení.pdf“ (repozitář oondraa/ESPdeck, 3. 11. 2026).
- * Odkazy na kapitoly jsou uvedené u každého bloku.
+ * Jediný zdroj faktů pro web. Vše je přepsané z vaultu dokumentace_md/.
+ * Co tam není, tady být nesmí: chybějící údaje mají hodnotu NOT_STATED.
  */
 
 export const REPO_URL = 'https://github.com/oondraa/ESPdeck';
 export const AUTHOR_URL = 'https://github.com/oondraa';
+export const CONTRIBUTORS_URL = `${REPO_URL}/graphs/contributors`;
 export const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`;
-export const DOC_URL = `${REPO_URL}/blob/main/Prvn%C3%AD%20n%C3%A1vrh%20dokumentace%20HW%20zapojen%C3%AD.pdf`;
+export const DOC_PDF_URL = `${REPO_URL}/blob/main/ESPDeck%20dokumentace.pdf`;
+export const NOT_STATED = 'neuvedeno';
 export const PRICE_DATE = '3. 11. 2026';
 
-/* ---------- Skupiny vodičů (barvy jen v diagramech) ---------- */
+/* ---------- Vodiče (HW/HW zapojení.md) ---------- */
 
 export type WireGroup = 'power' | 'gnd' | 'i2c' | 'enc' | 'touch';
 
-export const WIRE_GROUPS: Readonly<Record<WireGroup, { label: string; color: string }>> = {
-  power: { label: 'Napájení 3V3', color: 'červená' },
-  gnd: { label: 'GND', color: 'černá' },
-  i2c: { label: 'I²C', color: 'modrá' },
-  enc: { label: 'Enkodér', color: 'oranžová' },
-  touch: { label: 'Dotyk', color: 'zelená' },
+export const WIRE_GROUPS: Readonly<Record<WireGroup, { readonly label: string }>> = {
+  power: { label: 'Napájení 3V3' },
+  gnd: { label: 'GND' },
+  i2c: { label: 'I²C' },
+  enc: { label: 'Enkodér' },
+  touch: { label: 'Dotyk' },
 };
 
 export const GROUP_ORDER: readonly WireGroup[] = ['power', 'gnd', 'i2c', 'enc', 'touch'];
-
-/* ---------- Kap. 2 – tabulka 15 vodičů ---------- */
 
 export type ModuleId = 'oled' | 'enc' | 'pad';
 
@@ -32,36 +31,32 @@ export interface Wire {
   readonly n: number;
   readonly module: ModuleId;
   readonly moduleLabel: string;
-  readonly modulePin: string;
-  /** Popisek na desce ESP32 */
+  /** Null u plošky, která nemá pojmenovaný vývod. */
+  readonly modulePin: string | null;
   readonly espLabel: string;
-  /** Klíč pinu ESP32 v diagramu */
+  /** Klíč pinu v diagramu. */
   readonly espPin: string;
   readonly fn: string;
-  /** Barva fyzického drátu podle tabulky v PDF */
-  readonly wireColor: string;
   readonly group: WireGroup;
 }
 
 export const WIRES: readonly Wire[] = [
-  { n: 1, module: 'oled', moduleLabel: 'OLED', modulePin: 'VCC', espLabel: '3V3', espPin: '3V3', fn: 'napájení 3,3 V', wireColor: 'červená', group: 'power' },
-  { n: 2, module: 'oled', moduleLabel: 'OLED', modulePin: 'GND', espLabel: 'GND', espPin: 'GND_R', fn: 'zem', wireColor: 'černá', group: 'gnd' },
-  { n: 3, module: 'oled', moduleLabel: 'OLED', modulePin: 'SDA', espLabel: 'D21 (GPIO21)', espPin: '21', fn: 'I²C data', wireColor: 'modrá', group: 'i2c' },
-  { n: 4, module: 'oled', moduleLabel: 'OLED', modulePin: 'SCL', espLabel: 'D22 (GPIO22)', espPin: '22', fn: 'I²C hodiny', wireColor: 'žlutá', group: 'i2c' },
-  { n: 5, module: 'enc', moduleLabel: 'Enkodér', modulePin: '5V', espLabel: '3V3', espPin: '3V3', fn: 'napájení + pull-upy filtru', wireColor: 'červená', group: 'power' },
-  { n: 6, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'GND', espLabel: 'GND', espPin: 'GND_L', fn: 'zem', wireColor: 'černá', group: 'gnd' },
-  { n: 7, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'S1', espLabel: 'D25 (GPIO25)', espPin: '25', fn: 'kanál A', wireColor: 'zelená', group: 'enc' },
-  { n: 8, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'S2', espLabel: 'D26 (GPIO26)', espPin: '26', fn: 'kanál B', wireColor: 'bílá', group: 'enc' },
-  { n: 9, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'Key', espLabel: 'D23 (GPIO23)', espPin: '23', fn: 'tlačítko (stisk osy)', wireColor: 'oranžová', group: 'enc' },
-  { n: 10, module: 'pad', moduleLabel: 'Ploška P1', modulePin: '–', espLabel: 'D4 (GPIO4)', espPin: '4', fn: 'dotyk T0', wireColor: 'fialová', group: 'touch' },
-  { n: 11, module: 'pad', moduleLabel: 'Ploška P2', modulePin: '–', espLabel: 'D13 (GPIO13)', espPin: '13', fn: 'dotyk T4', wireColor: 'fialová', group: 'touch' },
-  { n: 12, module: 'pad', moduleLabel: 'Ploška P3', modulePin: '–', espLabel: 'D14 (GPIO14)', espPin: '14', fn: 'dotyk T6', wireColor: 'fialová', group: 'touch' },
-  { n: 13, module: 'pad', moduleLabel: 'Ploška P4', modulePin: '–', espLabel: 'D27 (GPIO27)', espPin: '27', fn: 'dotyk T7', wireColor: 'fialová', group: 'touch' },
-  { n: 14, module: 'pad', moduleLabel: 'Ploška P5', modulePin: '–', espLabel: 'D33 (GPIO33)', espPin: '33', fn: 'dotyk T8', wireColor: 'fialová', group: 'touch' },
-  { n: 15, module: 'pad', moduleLabel: 'Ploška P6', modulePin: '–', espLabel: 'D32 (GPIO32)', espPin: '32', fn: 'dotyk T9', wireColor: 'fialová', group: 'touch' },
+  { n: 1, module: 'oled', moduleLabel: 'OLED', modulePin: 'VCC', espLabel: '3V3 (μŠup)', espPin: 'U_3V3', fn: 'napájení, spíná ho GPIO47', group: 'power' },
+  { n: 2, module: 'oled', moduleLabel: 'OLED', modulePin: 'GND', espLabel: 'GND (μŠup)', espPin: 'U_GND', fn: 'zem', group: 'gnd' },
+  { n: 3, module: 'oled', moduleLabel: 'OLED', modulePin: 'SDA', espLabel: 'GPIO42 (μŠup)', espPin: '42', fn: 'I²C data', group: 'i2c' },
+  { n: 4, module: 'oled', moduleLabel: 'OLED', modulePin: 'SCL', espLabel: 'GPIO2 (μŠup)', espPin: '2', fn: 'I²C hodiny', group: 'i2c' },
+  { n: 5, module: 'enc', moduleLabel: 'Enkodér', modulePin: '5V', espLabel: '3V3', espPin: '3V3', fn: 'napájení pull-upů a RC filtru', group: 'power' },
+  { n: 6, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'GND', espLabel: 'GND', espPin: 'GND', fn: 'zem', group: 'gnd' },
+  { n: 7, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'S1', espLabel: 'GPIO15', espPin: '15', fn: 'kanál A', group: 'enc' },
+  { n: 8, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'S2', espLabel: 'GPIO16', espPin: '16', fn: 'kanál B', group: 'enc' },
+  { n: 9, module: 'enc', moduleLabel: 'Enkodér', modulePin: 'Key', espLabel: 'GPIO17', espPin: '17', fn: 'tlačítko (aktivní v LOW)', group: 'enc' },
+  { n: 10, module: 'pad', moduleLabel: 'Ploška P1', modulePin: null, espLabel: 'GPIO4', espPin: '4', fn: 'dotyk T4', group: 'touch' },
+  { n: 11, module: 'pad', moduleLabel: 'Ploška P2', modulePin: null, espLabel: 'GPIO5', espPin: '5', fn: 'dotyk T5', group: 'touch' },
+  { n: 12, module: 'pad', moduleLabel: 'Ploška P3', modulePin: null, espLabel: 'GPIO6', espPin: '6', fn: 'dotyk T6', group: 'touch' },
+  { n: 13, module: 'pad', moduleLabel: 'Ploška P4', modulePin: null, espLabel: 'GPIO7', espPin: '7', fn: 'dotyk T7', group: 'touch' },
+  { n: 14, module: 'pad', moduleLabel: 'Ploška P5', modulePin: null, espLabel: 'GPIO8', espPin: '8', fn: 'dotyk T8', group: 'touch' },
+  { n: 15, module: 'pad', moduleLabel: 'Ploška P6', modulePin: null, espLabel: 'GPIO1', espPin: '1', fn: 'dotyk T1', group: 'touch' },
 ];
-
-/* ---------- Plošky (kap. 2, 5.1) ---------- */
 
 export interface Pad {
   readonly id: string;
@@ -70,115 +65,12 @@ export interface Pad {
 }
 
 export const PADS: readonly Pad[] = [
-  { id: 'P1', gpio: 4, touch: 'T0' },
-  { id: 'P2', gpio: 13, touch: 'T4' },
-  { id: 'P3', gpio: 14, touch: 'T6' },
-  { id: 'P4', gpio: 27, touch: 'T7' },
-  { id: 'P5', gpio: 33, touch: 'T8' },
-  { id: 'P6', gpio: 32, touch: 'T9' },
-];
-
-/* ---------- Kap. 1 + 3.2 – moduly ---------- */
-
-export interface Spec {
-  readonly k: string;
-  readonly v: string;
-}
-
-export interface HwModule {
-  readonly id: string;
-  readonly index: string;
-  readonly name: string;
-  readonly part: string;
-  readonly code: string;
-  readonly power: string;
-  readonly specs: readonly Spec[];
-}
-
-export const MODULES: readonly HwModule[] = [
-  {
-    id: 'esp32',
-    index: 'U1',
-    name: 'ESP32',
-    part: 'IoT ESP-WROOM-32 rev.1, CP2102',
-    code: 'LA100036',
-    power: '5 V z USB → 3,3 V regulátor na desce',
-    specs: [
-      { k: 'SoC', v: 'ESP32-D0WDQ6 rev.1' },
-      { k: 'CPU', v: '2× Xtensa LX6, 80–240 MHz' },
-      { k: 'Paměť', v: '4 MB SPI flash, 520 kB SRAM' },
-      { k: 'Rádio', v: 'Wi-Fi 802.11 b/g/n 2,4 GHz, Bluetooth 4.2 BR/EDR + BLE' },
-      { k: 'USB-UART', v: 'CP2102, microUSB' },
-      { k: 'Použito', v: '1× I²C (HW), 6× touch kanál, PCNT nebo GPIO přerušení' },
-      { k: 'Rozměry', v: 'cca 55 × 28 mm' },
-    ],
-  },
-  {
-    id: 'oled',
-    index: 'U2',
-    name: 'OLED 1,3"',
-    part: 'LaskaKit OLED 128×64 1,3" I²C',
-    code: 'LA141084W / B',
-    power: '3,3 V',
-    specs: [
-      { k: 'Řadič', v: 'SH1106, 128 × 64 bodů, monochromatický (bílý nebo modrý)' },
-      { k: 'Adresa I²C', v: '0x3C (výchozí), 0x3D pájecím můstkem' },
-      { k: 'Pull-up', v: '10 kΩ na SDA i SCL proti VCC displeje' },
-      { k: 'Odběr', v: 'max 100 mA' },
-      { k: 'Konektory', v: '2× μŠup (Stemma QT / Qwiic), lišta 4 piny 2,54 mm' },
-      { k: 'Rozměr', v: '34 × 36 mm, deska v1.2' },
-    ],
-  },
-  {
-    id: 'enc',
-    index: 'U3',
-    name: 'Rotační enkodér',
-    part: 'Rotační enkodér s tlačítkem a RC filtrem',
-    code: 'LA132020',
-    power: '3,3 V (pin „5V“ připojit na 3V3)',
-    specs: [
-      { k: 'Rozlišení', v: '20 pulzů na otáčku, neomezené otáčení' },
-      { k: 'Vývody', v: 'S1, S2, Key, 5V, GND' },
-      { k: 'Filtr', v: 'RC filtr na desce modulu' },
-      { k: 'Mechanika', v: 'osa cca 20 mm, závit cca M7, délka závitu cca 6 mm' },
-      { k: 'Životnost', v: 'cca 30 000 cyklů' },
-      { k: 'Napájení', v: 'deklarováno 5 V, v projektu 3,3 V' },
-    ],
-  },
-  {
-    id: 'pads',
-    index: 'E1–E6',
-    name: '6× dotyková ploška',
-    part: 'Měděná ploška, vlastní výroba',
-    code: 'vlastní DPS / měděná páska',
-    power: 'bez napájení (pasivní elektroda)',
-    specs: [
-      { k: 'Elektroda', v: 'kruh Ø 12 mm, měď' },
-      { k: 'Sériový R', v: '510 Ω (R1–R6)' },
-      { k: 'Kryt', v: 'akrylát / polykarbonát 1–2 mm, bez vzduchové mezery' },
-      { k: 'Rozteč', v: '≥ 10 mm hrana–hrana' },
-      { k: 'Kanály', v: 'T0, T4, T6, T7, T8, T9' },
-      { k: 'Citlivost', v: 'cíl > 3 %, odstup S/N > 5 : 1' },
-    ],
-  },
-];
-
-/* ---------- Kap. 2 – postup sestavení ---------- */
-
-export interface BuildStep {
-  readonly title: string;
-  readonly body: string;
-  readonly wires?: string;
-}
-
-export const BUILD_STEPS: readonly BuildStep[] = [
-  { title: 'Lišta na OLED', body: 'Na OLED připájej přiloženou 4pinovou lištu, nebo použij kabel μŠup. Adresní můstek nech z výroby na 0x3C.' },
-  { title: 'Napájení', body: '3V3 a GND z ESP32 rozveď na OLED i enkodér.', wires: '1, 2, 5, 6' },
-  { title: 'I²C', body: 'Propoj SDA a SCL. Kabel drž krátký, ideálně do 15 cm.', wires: '3, 4' },
-  { title: 'Enkodér', body: 'Propoj S1, S2 a Key.', wires: '7–9' },
-  { title: 'Plošky', body: 'Každou plošku připoj zvlášť tenkým vodičem, co nejkratším a všechny stejně dlouhé. Vodiče k ploškám neveď souběžně s I²C.', wires: '10–15' },
-  { title: 'Kontrola multimetrem', body: 'Před připojením USB: mezi 3V3 a GND není zkrat a na pinu „5V“ enkodéru není nic připojeno k 5 V.' },
-  { title: 'První start', body: 'Připoj microUSB, nahraj testovací firmware a projdi kontrolní seznam oživení.' },
+  { id: 'P1', gpio: 4, touch: 'T4' },
+  { id: 'P2', gpio: 5, touch: 'T5' },
+  { id: 'P3', gpio: 6, touch: 'T6' },
+  { id: 'P4', gpio: 7, touch: 'T7' },
+  { id: 'P5', gpio: 8, touch: 'T8' },
+  { id: 'P6', gpio: 1, touch: 'T1' },
 ];
 
 export interface Warning {
@@ -188,322 +80,312 @@ export interface Warning {
 
 export const WARNINGS: readonly Warning[] = [
   {
-    title: 'OLED ani enkodér nenapájej z 5 V',
-    body: 'Oba moduly mají pull-up rezistory proti svému napájení. Při 5 V by na piny ESP32 přišlo 5 V a ESP32 není 5V tolerantní.',
+    title: 'Pin „5V“ enkodéru patří na 3V3',
+    body: 'Pull-upy modulu by jinak daly na vstupy 5 V a ESP32-S3 není 5V tolerantní.',
   },
   {
-    title: 'Chybný popisek na desce: pod pinem 5V není GND',
-    body: 'Je tam natištěno GND, ve skutečnosti je to CMD (linka flash). Zem ber jen z pinů GND, které odpovídají pinoutu prodejce.',
+    title: 'Displej napájej jen z μŠup',
+    body: 'Tedy 3,3 V, ne 5 V. Pull-upy 10 kΩ na modulu vedou proti jeho VCC.',
   },
   {
-    title: 'Pro plošky nepoužívej GPIO 0, 2, 12, 15',
-    body: 'Jsou to strapping piny. Dotyk nebo vodič na nich může zablokovat start nebo nahrávání.',
+    title: 'Bez GPIO47 displej nežije',
+    body: 'Napájení konektoru μŠup se zapíná GPIO47 = HIGH. Jinak displej nesvítí ani neodpovídá na I²C.',
   },
 ];
 
-/* ---------- Kap. 3 – elektrické parametry ---------- */
-
-export interface OperatingRow {
-  readonly param: string;
-  readonly min: string;
-  readonly typ: string;
-  readonly max: string;
-  readonly unit: string;
-  readonly note: string;
-}
-
-export const OPERATING: readonly OperatingRow[] = [
-  { param: 'Napájení USB (VBUS)', min: '4,75', typ: '5,0', max: '5,25', unit: 'V', note: 'microUSB na desce ESP32' },
-  { param: 'Napájení přes pin V5 (místo USB)', min: '–', typ: '5,0', max: '7', unit: 'V', note: 'doporučení prodejce: max cca 7 V, nad 9 V ne' },
-  { param: 'Logická úroveň / rail 3V3', min: '–', typ: '3,3', max: '–', unit: 'V', note: 'lineární regulátor na desce ESP32' },
-  { param: 'Napětí na libovolném GPIO', min: '−0,3', typ: '–', max: '3,6', unit: 'V', note: 'absolutní maximum, ne 5V tolerantní' },
-  { param: 'VIH (log. 1)', min: '2,48', typ: '–', max: '–', unit: 'V', note: '0,75 × VDD' },
-  { param: 'VIL (log. 0)', min: '–', typ: '–', max: '0,83', unit: 'V', note: '0,25 × VDD' },
-  { param: 'Frekvence I²C', min: '–', typ: '100', max: '400', unit: 'kHz', note: '400 kHz jen se silnějšími pull-upy' },
-  { param: 'Pracovní teplota', min: '0', typ: '25', max: '40', unit: '°C', note: 'vnitřní použití; dotyk je teplotně citlivý' },
-];
-
-export interface BudgetRow {
-  readonly item: string;
-  readonly typ: string;
-  readonly peak: string;
-  readonly source: string;
-}
-
-export const BUDGET: readonly BudgetRow[] = [
-  { item: 'ESP32 s Wi-Fi vysíláním', typ: '–', peak: 'cca 300 mA', source: 'aplikační poznámka Espressif' },
-  { item: 'OLED SH1106', typ: 'dle počtu svítících bodů', peak: '100 mA', source: 'prodejce' },
-  { item: 'Pull-upy enkodéru (3× 10 kΩ, předpoklad)', typ: '< 0,1 mA', peak: '1 mA', source: 'výpočet' },
-  { item: 'Pull-upy I²C (2× 10 kΩ)', typ: '< 0,5 mA', peak: '0,7 mA', source: 'výpočet' },
-  { item: 'Dotykové plošky', typ: 'zanedbatelné', peak: 'zanedbatelné', source: '–' },
-  { item: 'Celkem z 3V3', typ: '–', peak: 'cca 0,4 A', source: '–' },
-];
-
-export interface I2cRow {
-  readonly variant: string;
-  readonly rp: string;
-  readonly cb: string;
-  readonly tr: string;
-  readonly k100: boolean;
-  readonly k400: boolean;
-}
-
-export const I2C_TIMING: readonly I2cRow[] = [
-  { variant: 'Jen pull-upy na OLED', rp: '10 kΩ', cb: '50 pF', tr: 'cca 424 ns', k100: true, k400: false },
-  { variant: '+ 4,7 kΩ paralelně u ESP32', rp: '3,2 kΩ', cb: '50 pF', tr: 'cca 136 ns', k100: true, k400: true },
-];
-
-export interface TimingRow {
-  readonly k: string;
-  readonly v: string;
-  readonly note: string;
-}
-
-export const ENCODER_TIMING: readonly TimingRow[] = [
-  { k: 'Hran na otáčku (plná kvadratura)', v: '80', note: '20 pulzů × 4 hrany' },
-  { k: 'Min. odstup hran pro spolehlivé čtení', v: 'cca 0,6 ms', note: '2× nejpomalejší náběh (277 µs)' },
-  { k: 'Max. rychlost otáčení', v: 'cca 20 ot/s', note: '1 / (0,6 ms × 80), ruka zvládne zlomek' },
-  { k: 'Log. 0 s interním pull-upem ESP32 (cca 45 kΩ)', v: 'cca 0,6 V', note: 'dělič 10 kΩ / 55 kΩ, těsně pod VIL 0,83 V, proto pull-up nezapínat' },
-];
-
-export interface PadRule {
-  readonly param: string;
-  readonly project: string;
-  readonly espressif: string;
-}
-
-export const PAD_RULES: readonly PadRule[] = [
-  { param: 'Tvar elektrody', project: 'kruh (případně čtverec se zaoblenými rohy)', espressif: 'bez ostrých rohů < 90°' },
-  { param: 'Průměr elektrody', project: '12 mm', espressif: '8–15 mm, typicky 12 mm' },
-  { param: 'Rozteč sousedních plošek', project: '≥ 10 mm (hrana–hrana)', espressif: '> 5 mm' },
-  { param: 'Mezera elektroda – šrafovaná zem', project: '1,5 mm', espressif: '1–2 mm, ideálně = tloušťka krytu' },
-  { param: 'Mezera vedení – zem', project: '0,5–1 mm', espressif: '0,5–1 mm' },
-  { param: 'Šířka spoje (DPS)', project: '0,15 mm', espressif: '≤ 0,18 mm' },
-  { param: 'Délka vedení', project: 'co nejkratší, max 150 mm', espressif: '≤ 300 mm' },
-  { param: 'Zemní výplň', project: 'šrafovaná cca 19 % (čára 5 mil, rozteč 50 mil)', espressif: 'plná zem ne blíž než 10 mm' },
-  { param: 'Sériový rezistor', project: '510 Ω', espressif: '470 Ω – 2 kΩ, doporučeno 510 Ω, do 1 mm od pinu' },
-  { param: 'Kryt (overlay)', project: 'akrylát / polykarbonát 1–2 mm, nalepený', espressif: 'plast ≤ 3 mm, bez vzduchové mezery, nevodivý' },
-  { param: 'Tloušťka DPS', project: '1,6 mm FR4', espressif: '0,5–1,65 mm' },
-];
-
-export interface GpioRow {
-  readonly gpio: string;
-  readonly label: string;
-  readonly side: 'levá' | 'pravá';
-  readonly net: string;
-  readonly dir: string;
-  readonly pullup: string;
+export interface PinRule {
+  readonly pins: string;
   readonly why: string;
 }
 
-export const GPIO_ALLOCATION: readonly GpioRow[] = [
-  { gpio: '21', label: 'D21', side: 'pravá', net: 'I2C_SDA', dir: 'obousměrný, open-drain', pullup: '10 kΩ na OLED', why: 'výchozí HW I²C ESP32' },
-  { gpio: '22', label: 'D22', side: 'pravá', net: 'I2C_SCL', dir: 'výstup, open-drain', pullup: '10 kΩ na OLED', why: 'výchozí HW I²C ESP32' },
-  { gpio: '25', label: 'D25', side: 'levá', net: 'ENC_A', dir: 'vstup', pullup: 'na modulu enkodéru', why: 'volný, umí přerušení i PCNT' },
-  { gpio: '26', label: 'D26', side: 'levá', net: 'ENC_B', dir: 'vstup', pullup: 'na modulu enkodéru', why: 'sousedí s ENC_A – krátké souběžné vedení' },
-  { gpio: '23', label: 'D23', side: 'pravá', net: 'ENC_KEY', dir: 'vstup', pullup: 'interní (INPUT_PULLUP)', why: 'není RTC pin, nemá vliv na dotyk' },
-  { gpio: '4', label: 'D4', side: 'pravá', net: 'TOUCH_1', dir: 'analog (T0)', pullup: 'žádný', why: 'jediný použitelný touch pin vpravo' },
-  { gpio: '13', label: 'D13', side: 'levá', net: 'TOUCH_2', dir: 'analog (T4)', pullup: 'žádný', why: 'není strapping; JTAG MTCK nepoužíváme' },
-  { gpio: '14', label: 'D14', side: 'levá', net: 'TOUCH_3', dir: 'analog (T6)', pullup: 'žádný', why: 'JTAG MTMS; při bootu krátce pulzuje, jako vstup nevadí' },
-  { gpio: '27', label: 'D27', side: 'levá', net: 'TOUCH_4', dir: 'analog (T7)', pullup: 'žádný', why: 'bez omezení' },
-  { gpio: '33', label: 'D33', side: 'levá', net: 'TOUCH_5', dir: 'analog (T8)', pullup: 'žádný', why: 'pin 32K_XN, deska nemá krystal 32 kHz' },
-  { gpio: '32', label: 'D32', side: 'levá', net: 'TOUCH_6', dir: 'analog (T9)', pullup: 'žádný', why: 'pin 32K_XP, deska nemá krystal 32 kHz' },
+export const PIN_RULES: readonly PinRule[] = [
+  { pins: 'GPIO 1 až 14', why: 'Jen tyto umí dotyk (T1 až T14). GPIO10 na DevKitu není vyvedený, proto je P6 na GPIO1.' },
+  { pins: 'GPIO 0, 3, 45, 46', why: 'Strapping piny (start a boot). Nepoužívat pro plošky ani vstupy s pull-upem.' },
+  { pins: 'GPIO 19, 20', why: 'Nativní USB (D− a D+).' },
+  { pins: 'GPIO 43, 44', why: 'UART0 (TX a RX) přes CH9102, nahrávání a sériová konzole.' },
+  { pins: 'GPIO 26 až 32', why: 'Interní SPI flash.' },
+  { pins: 'GPIO 47', why: 'Na LaskaKit DevKitu spíná napájení μŠup.' },
 ];
 
-export const GPIO_AVOIDED: readonly Spec[] = [
-  { k: '0 (T1)', v: 'strapping – log. 0 při startu = režim nahrávání; dotyk může zablokovat boot' },
-  { k: '2 (T2)', v: 'strapping – musí být 0/plovoucí pro nahrávání; na řadě klonů zde bývá LED' },
-  { k: '12 (T5)', v: 'strapping MTDI – log. 1 při startu přepne flash na 1,8 V a deska nenaběhne' },
-  { k: '15 (T3)', v: 'strapping MTDO – ovlivňuje bootovací výpis a časování SDIO' },
-  { k: '6–11', v: 'připojeno na interní SPI flash – nikdy nepoužívat' },
-  { k: '1, 3', v: 'UART0 (TX/RX) přes CP2102 – nahrávání a sériová konzole' },
-  { k: '36, 39', v: 'pouze vstupy; falešná přerušení při zapnutém ADC/Wi-Fi' },
+export interface Deviation {
+  readonly area: string;
+  readonly before: string;
+  readonly now: string;
+}
+
+export const DEVIATIONS: readonly Deviation[] = [
+  { area: 'Deska', before: 'IoT ESP-WROOM-32 rev.1, CP2102', now: 'ESP32-S3-DevKit, WROOM-1 N16, CH9102' },
+  { area: 'OLED', before: 'GPIO21/22, lišta 2,54 mm, 100 kHz', now: 'GPIO42/2 přes μŠup, 400 kHz' },
+  { area: 'Enkodér', before: 'GPIO25/26/23, interní pull-upy vypnuté', now: 'GPIO15/16/17, interní pull-upy zapnuté, S1/S2 obráceně' },
+  { area: 'Plošky', before: 'GPIO 4, 13, 14, 27, 33, 32', now: 'GPIO 4, 5, 6, 7, 8, 1' },
+  { area: 'Detekce dotyku', before: 'pokles pod 80 % klidu', now: 'nárůst nad 120 % klidu' },
 ];
 
-export const GPIO_RESERVE =
-  'GPIO 16, 17, 18, 19, 5 (obecné I/O, GPIO5 je strapping – jen jako výstup) a GPIO 34, 35 (pouze vstupy, bez interních pull-upů).';
+/* ---------- Moduly a kusovník (HW/Moduly a BOM.md) ---------- */
 
-/* ---------- Kap. 9 – BOM ---------- */
+export interface Spec {
+  readonly k: string;
+  readonly v: string;
+}
+
+export interface HwModule {
+  readonly id: 'esp' | 'oled' | 'enc' | 'pads';
+  readonly ref: string;
+  readonly name: string;
+  readonly specs: readonly Spec[];
+}
+
+export const MODULES: readonly HwModule[] = [
+  {
+    id: 'esp',
+    ref: 'U1',
+    name: 'LaskaKit ESP32-S3-DevKit',
+    specs: [
+      { k: 'Modul', v: 'ESP32-S3-WROOM-1 N16 (16 MB flash)' },
+      { k: 'USB-UART', v: 'CH9102' },
+      { k: 'PlatformIO', v: 'board = esp32-s3-devkitc-1, board_upload.flash_size = 16MB' },
+      { k: 'Navíc', v: 'konektor μŠup s napájením spínaným GPIO47' },
+    ],
+  },
+  {
+    id: 'oled',
+    ref: 'U2',
+    name: 'LaskaKit OLED 1,3" I²C',
+    specs: [
+      { k: 'Řadič a rozlišení', v: 'SH1106, 128×64, monochromatický' },
+      { k: 'Adresa I²C', v: '0x3C (výchozí), 0x3D pájecím můstkem' },
+      { k: 'Pull-upy', v: '10 kΩ na SDA i SCL proti VCC displeje' },
+      { k: 'Napájení', v: '3,3 až 5 V, max. 100 mA (v projektu 3,3 V z μŠup)' },
+      { k: 'Konektory', v: '2× μŠup (Stemma QT / Qwiic), lišta 4 piny 2,54 mm' },
+    ],
+  },
+  {
+    id: 'enc',
+    ref: 'U3',
+    name: 'Rotační enkodér s tlačítkem a RC filtrem',
+    specs: [
+      { k: 'Rozlišení', v: '20 pulzů na otáčku, neomezené otáčení' },
+      { k: 'Vývody', v: 'S1, S2, Key, 5V, GND' },
+      { k: 'Napájení', v: 'v projektu 3,3 V (pin „5V“ na 3V3)' },
+      { k: 'Dekódování', v: '4 hrany = 1 cvak, ověřeno firmwarem' },
+    ],
+  },
+  {
+    id: 'pads',
+    ref: 'E1 až E6',
+    name: 'Šest dotykových plošek',
+    specs: [
+      { k: 'Piny', v: 'GPIO 4, 5, 6, 7, 8, 1' },
+      { k: 'Kanály', v: 'T4, T5, T6, T7, T8, T1' },
+      { k: 'Provedení', v: NOT_STATED },
+    ],
+  },
+];
 
 export interface BomRow {
   readonly ref: string;
   readonly qty: number;
   readonly item: string;
-  readonly value: string;
   readonly code: string;
-  /** Cena za kus v Kč s DPH, null = neuvedeno */
+  /** Cena za kus v Kč s DPH, null = neuvedeno. */
   readonly price: number | null;
-  readonly required: string;
 }
 
 export const BOM: readonly BomRow[] = [
-  { ref: 'U1', qty: 1, item: 'IoT ESP-WROOM-32 rev.1, CP2102', value: 'ESP32-D0WDQ6, 4 MB', code: 'LA100036', price: 198, required: 'ano' },
-  { ref: 'U2', qty: 1, item: 'LaskaKit OLED 128×64 1,3" I²C', value: 'SH1106, bílý (W) nebo modrý (B)', code: 'LA141084W / LA141084B', price: 168, required: 'ano' },
-  { ref: 'U3', qty: 1, item: 'Rotační enkodér s tlačítkem a RC filtrem', value: '20 pulzů/ot.', code: 'LA132020', price: 48, required: 'ano' },
-  { ref: 'E1–E6', qty: 6, item: 'Dotyková elektroda', value: 'Cu ploška Ø 12 mm', code: 'vlastní DPS / měděná páska', price: null, required: 'ano' },
-  { ref: 'R1–R6', qty: 6, item: 'Rezistor v sérii s ploškou', value: '510 Ω, 0805 nebo THT', code: '–', price: null, required: 'doporučeno' },
-  { ref: 'R7, R8', qty: 2, item: 'Přídavný pull-up I²C', value: '4,7 kΩ', code: '–', price: null, required: 'jen pro 400 kHz' },
-  { ref: '–', qty: 1, item: 'Kryt plošek', value: 'akrylát / PC 1–2 mm + oboustranná nevodivá páska', code: '–', price: null, required: 'ano' },
-  { ref: '–', qty: 15, item: 'Propojovací vodič', value: 'dupont F-F nebo lanko 0,25 mm²', code: '–', price: null, required: 'ano' },
-  { ref: '–', qty: 1, item: 'Kabel microUSB (datový)', value: '–', code: '–', price: null, required: 'ano' },
+  { ref: 'U1', qty: 1, item: 'LaskaKit ESP32-S3-DevKit', code: NOT_STATED, price: null },
+  { ref: 'U2', qty: 1, item: 'LaskaKit OLED 128×64 1,3" I²C (bílý / modrý)', code: 'LA141084W / LA141084B', price: 168 },
+  { ref: 'U3', qty: 1, item: 'Rotační enkodér s tlačítkem a RC filtrem', code: 'LA132020', price: 48 },
+  { ref: 'bez ozn.', qty: 1, item: 'Kabel μŠup (OLED a DevKit)', code: NOT_STATED, price: null },
+  { ref: 'E1 až E6', qty: 6, item: 'Dotyková ploška', code: NOT_STATED, price: null },
+  { ref: 'bez ozn.', qty: 11, item: 'Propojovací vodiče (enkodér 5, plošky 6)', code: NOT_STATED, price: null },
+  { ref: 'bez ozn.', qty: 1, item: 'Datový USB kabel', code: NOT_STATED, price: null },
 ];
 
-export const BOM_TOTAL = BOM.reduce((sum, r) => (r.price === null ? sum : sum + r.price * r.qty), 0);
+export const BOM_KNOWN_TOTAL = BOM.reduce((sum, r) => (r.price === null ? sum : sum + r.price * r.qty), 0);
 
-/* ---------- Kap. 10 – oživení ---------- */
+/* ---------- Co zařízení dělá (Firmware/*, Aplikace/*) ---------- */
+
+export type DemoAction = 'turn' | 'press' | 'long' | 'light-on' | 'light-off' | 'shortcut';
+
+export interface Gesture {
+  readonly demo: DemoAction;
+  readonly input: string;
+  readonly result: string;
+  readonly detail: string;
+}
+
+export const GESTURES: readonly Gesture[] = [
+  { demo: 'turn', input: 'Otočení enkodéru', result: 'Hlasitost Bluesoundu', detail: 'Po jednom kroku. Na displeji se na 1,2 s ukáže okénko s pruhem.' },
+  { demo: 'press', input: 'Krátký stisk', result: 'Play a pauza', detail: 'Ikona se plynule přetvaruje a po 1,1 s zmizí.' },
+  { demo: 'long', input: 'Stisk přes 600 ms', result: 'Přepnutí na Nastavení', detail: 'Wi-Fi, Bluetooth, PC a jas. Otočením se vybírá řádek.' },
+  { demo: 'light-on', input: 'Ploška 1', result: 'Rozsvítí světla', detail: 'HTTP požadavek na lokální server. Bez Wi-Fi ukáže BEZ WIFI.' },
+  { demo: 'light-off', input: 'Ploška 3', result: 'Zhasne světla', detail: 'Stejná cesta jako rozsvícení.' },
+  { demo: 'shortcut', input: 'Plošky 2, 4, 5, 6', result: 'Klávesová zkratka na PC', detail: 'Když běží aplikace. Text akce se vrátí na displej.' },
+];
+
+export interface Binding {
+  readonly pad: number;
+  /** Null = ploška ovládá světla přímo z decku. */
+  readonly shortcut: string | null;
+  readonly text: string | null;
+}
+
+export const BINDINGS: readonly Binding[] = [
+  { pad: 1, shortcut: null, text: null },
+  { pad: 2, shortcut: 'Ctrl+C', text: 'KOPIROVAT' },
+  { pad: 3, shortcut: null, text: null },
+  { pad: 4, shortcut: 'Ctrl+V', text: 'VLOZIT' },
+  { pad: 5, shortcut: 'Win+Shift+S', text: 'VYSTRIZEK' },
+  { pad: 6, shortcut: 'Win+D', text: 'PLOCHA' },
+];
+
+export interface FlowEvent {
+  readonly id: string;
+  readonly label: string;
+  readonly route: 'pc' | 'audio' | 'lights';
+  readonly out: string;
+  readonly back: string;
+}
+
+export const FLOW_EVENTS: readonly FlowEvent[] = [
+  { id: 'pad2', label: 'Dotyk plošky 2', route: 'pc', out: '{"t":"touch","pad":2,"ev":"tap"}', back: '{"t":"show","text":"KOPIROVAT"}' },
+  { id: 'vol', label: 'Otočení enkodéru', route: 'audio', out: 'GET /Volume?level=N', back: 'GET /Status, co 5 s' },
+  { id: 'lamp', label: 'Dotyk plošky 1', route: 'lights', out: 'HTTP GET, lokální server :8181', back: 'SVETLA ZAP na displeji' },
+];
+
+/* ---------- Stav projektu (Stav projektu.md, Otevřené otázky.md) ---------- */
+
+export type StatusLevel = 'hw' | 'ok' | 'mock';
+
+export const STATUS_LABEL: Readonly<Record<StatusLevel, string>> = {
+  hw: 'Ověřeno na HW',
+  ok: 'Funguje',
+  mock: 'Jen vzhled',
+};
+
+export interface StatusRow {
+  readonly area: string;
+  readonly level: StatusLevel;
+}
+
+export const STATUS_ROWS: readonly StatusRow[] = [
+  { area: 'OLED SH1106 přes μŠup', level: 'hw' },
+  { area: 'Enkodér a tlačítko', level: 'hw' },
+  { area: 'Šest dotykových plošek', level: 'hw' },
+  { area: 'Obrazovky Hodiny a Nastavení', level: 'ok' },
+  { area: 'Wi-Fi a čas z NTP', level: 'ok' },
+  { area: 'Bluesound: hlasitost, Play a pauza', level: 'ok' },
+  { area: 'Světla zapnout a vypnout', level: 'ok' },
+  { area: 'Spojení s PC aplikací', level: 'ok' },
+  { area: 'Aplikace: zkratky a živý log', level: 'ok' },
+  { area: 'Aplikace: editor Hardware a Functions', level: 'mock' },
+];
+
+export const LIMITS_PUBLIC: readonly Warning[] = [
+  { title: 'Spojení s PC není zabezpečené', body: 'Otevřené TCP bez šifrování a párování. Kdokoli v síti se může připojit na port 4545, převzít spojení a číst dotyky.' },
+  { title: 'Bluetooth neexistuje', body: 'Přepínač na decku i v aplikaci je jen grafika.' },
+  { title: 'Editor v aplikaci je maketa', body: 'Hardware a Functions ukazují data z návrhu. Do decku se nic neposílá.' },
+  { title: 'Nastavení se neukládá', body: 'Po restartu se jas vrací na 70 %. Wi-Fi a adresy se zadávají při kompilaci.' },
+];
+
+export interface Limit {
+  readonly id: string;
+  readonly text: string;
+}
+
+export const LIMITS: readonly Limit[] = [
+  { id: 'L1', text: 'Spojení deck a PC není zabezpečené. Kdokoli v síti se může připojit na port 4545, přebrat spojení a posílat show nebo číst dotyky.' },
+  { id: 'L2', text: 'Wi-Fi heslo a adresy jsou zakompilované v secrets.h, změna znamená nový build.' },
+  { id: 'L3', text: 'Bluetooth neexistuje, přepínač je jen grafika (deck i aplikace).' },
+  { id: 'L4', text: 'Nastavení decku (jas) se neukládá.' },
+  { id: 'L5', text: 'Světla jsou napevno na ploškách 1 a 3.' },
+  { id: 'L6', text: 'Enkodér a jeho tlačítko na PC nic nedělají, jen se zapíšou do logu.' },
+  { id: 'L7', text: 'Editor Hardware a Functions je maketa s ukázkovými daty.' },
+  { id: 'L8', text: 'upload_port = COM8 je napevno v platformio.ini.' },
+  { id: 'L10', text: 'Generátor assets.h z JSON není v repozitáři.' },
+  { id: 'L11', text: 'Provedení dotykových plošek (materiál, průměr, kryt, případný sériový rezistor) a kód a cena desky S3 nejsou zdokumentované.' },
+];
+
+/* ---------- Firmware ---------- */
+
+export const TOUCH_STEPS: readonly Spec[] = [
+  { k: 'Kalibrace', v: 'Při startu se 30 měření zahodí (první hodnoty jsou nesmyslně vysoké, asi 156k místo 26k). Základ je průměr z 32 vzorků.' },
+  { k: 'IIR filtr', v: 'filt += (v - filt) * 0.3 tlumí šum, hlavně od Wi-Fi.' },
+  { k: 'Hystereze', v: 'Dotyk při filt > základ × 1,20, uvolnění při filt < základ × 1,10.' },
+  { k: 'Drift', v: 'Bez dotyku se základ pomalu posouvá (× 0.001) za aktuální hodnotou.' },
+];
+
+export const CONTROLS: readonly { readonly gesture: string; readonly clock: string; readonly settings: string }[] = [
+  { gesture: 'Otočení', clock: 'hlasitost Bluesoundu ±1, okénko s pruhem 1,2 s', settings: 'posun kurzoru nebo změna jasu' },
+  { gesture: 'Krátký stisk', clock: 'Play a pauza Bluesoundu s animací', settings: 'akce řádku' },
+  { gesture: 'Dlouhý stisk (> 600 ms)', clock: 'přepne na Nastavení', settings: 'přepne na Hodiny' },
+];
+
+export const SETTINGS_ROWS: readonly { readonly row: string; readonly shows: string; readonly action: string }[] = [
+  { row: 'WIFI', shows: 'název sítě a síla signálu (4 čárky podle RSSI), nebo ODPOJENO', action: 'žádná' },
+  { row: 'BLUETOOTH', shows: 'přepínač', action: 'přepne, ale jen grafika' },
+  { row: 'PC', shows: 'PRIPOJENO nebo ODPOJENO', action: 'žádná' },
+  { row: 'JAS', shows: 'posuvník', action: 'zapne úpravu, krok 5 %, rozsah 5 až 100 %' },
+];
+
+export const SERIAL_CMDS: readonly Spec[] = [
+  { k: 'n / p', v: 'enkodér dolů / nahoru' },
+  { k: 'o / l', v: 'stisk / dlouhý stisk' },
+  { k: 't', v: 'hodnoty plošek' },
+  { k: 'c', v: 'znovu kalibrovat plošky (nedotýkat se)' },
+  { k: 'w', v: 'SSID a RSSI, nebo „nepripojeno“' },
+];
+
+export const NET_ROWS: readonly { readonly action: string; readonly request: string; readonly note: string }[] = [
+  { action: 'Hlasitost', request: 'GET /Volume?level=N', note: 'nejvýš 1× za 150 ms, posílá se poslední hodnota' },
+  { action: 'Play a pauza', request: 'GET /Pause?toggle=1', note: 'dva rychlé stisky se navzájem zruší' },
+  { action: 'Stav', request: 'GET /Status', note: 'co 5 s a hned po připojení' },
+];
+
+export const PROTOCOL_DECK: readonly { readonly msg: string; readonly when: string }[] = [
+  { msg: '{"t":"hello","name":"ESPDeck","id":"…","fw":"0.1.0","pads":6}', when: 'hned po připojení' },
+  { msg: '{"t":"touch","pad":1,"ev":"tap"}', when: 'dotyk plošky 1 až 6' },
+  { msg: '{"t":"enc","d":1}', when: 'otočení enkodéru (± cvaky)' },
+  { msg: '{"t":"btn","ev":"press"}', when: 'stisk, u dlouhého stisku "long"' },
+  { msg: '{"t":"pong"}', when: 'odpověď na ping' },
+];
+
+export const PROTOCOL_PC: readonly { readonly msg: string; readonly when: string }[] = [
+  { msg: '{"t":"ping"}', when: 'aplikace posílá co 2 s' },
+  { msg: '{"t":"show","text":"KOPIROVAT"}', when: 'text v okénku na OLED, max 23 znaků, převede se na velká písmena' },
+];
+
+export const KEY_NAMES: readonly Spec[] = [
+  { k: 'Modifikátory', v: 'Ctrl, Shift, Alt, Win (Meta, Super, Cmd)' },
+  { k: 'Funkční', v: 'F1 až F24, Enter, Esc, Tab, Space, Backspace, Del, Ins, Home, End, PgUp, PgDn, Up, Down, Left, Right' },
+  { k: 'Média', v: 'PlayPause, Next, Prev, VolUp, VolDown, Mute' },
+];
+
+/* ---------- Oživení (HW/Oživení a diagnostika.md) ---------- */
+
+export const TOOLS: readonly { readonly tool: string; readonly run: string; readonly does: string }[] = [
+  { tool: 'Sken pinů I²C', run: 'pio run -e i2cscan -t upload', does: 'zapne μŠup, zkusí dvojice bezpečných GPIO jako SDA a SCL a vypíše, kde odpoví 0x3C nebo 0x3D' },
+  { tool: 'I²C sken při startu', run: 'běžný firmware', does: 'do sériové linky vypíše nalezené adresy' },
+  { tool: 'Hodnoty plošek', run: 'sériově t', does: 'filtrovaná hodnota a základ každé plošky, DOTYK u stisknuté' },
+  { tool: 'Kalibrace plošek', run: 'sériově c', does: 'nová kalibrace, plošek se nedotýkat' },
+  { tool: 'Wi-Fi', run: 'sériově w', does: 'SSID a RSSI, nebo „nepripojeno“' },
+  { tool: 'Simulace enkodéru', run: 'sériově n, p, o, l', does: 'otočení, stisk a dlouhý stisk bez HW' },
+];
+
+export const FINDINGS: readonly string[] = [
+  'Piny displeje se našly skenem: SDA = GPIO42, SCL = GPIO2, adresa 0x3C.',
+  'I²C na 400 kHz funguje s pull-upy jen na modulu. Na 100 kHz trval jeden snímek asi 95 ms, na plynulou animaci málo.',
+  'Enkodér má S1 a S2 vůči A a B prohozené, proto ENC_REVERSE = true.',
+  'Hodnota dotyku na S3 při dotyku roste. První měření po startu jsou nesmyslně vysoká.',
+  'Wi-Fi zvyšuje šum dotyku, proto kalibrace 300 ms po jejím startu.',
+];
 
 export const BRINGUP: readonly string[] = [
-  'Bez napájení: odpor 3V3–GND > 1 kΩ (žádný zkrat), pin „5V“ enkodéru vede na 3V3.',
-  'Po připojení USB: na 3V3 je 3,2–3,4 V, regulátor po 5 min jen vlažný.',
-  'Na SDA a SCL je v klidu 3,3 V (ne 5 V!).',
-  'I²C scanner najde zařízení na adrese 0x3C.',
-  'Testovací sketch zobrazí text a 6 rámečků bez posunu obrazu.',
-  'Enkodér: 20 cvaknutí = 20 kroků na displeji v obou směrech, bez přeskakování při rychlém otáčení.',
-  'Tlačítko enkodéru: jeden stisk = jedna změna stavu.',
-  'Dotyk: ze sériového výpisu zapiš klid a dotyk pro každou plošku, spočítej citlivost (> 3 %).',
-  'Dotyk se zapnutou Wi-Fi: žádné falešné sepnutí za 10 min v klidu.',
-  'Přeslech: dotyk jedné plošky nesepne sousední.',
-  'Restart a nahrávání firmwaru fungují i s připojenými ploškami (ověření strapping pinů).',
-];
-
-export interface Risk {
-  readonly risk: string;
-  readonly impact: string;
-  readonly fix: string;
-}
-
-export const RISKS: readonly Risk[] = [
-  { risk: 'OLED nebo enkodér omylem na 5 V', impact: 'trvalé poškození vstupů ESP32', fix: 'napájení jen z 3V3; krok 3 kontrolního seznamu' },
-  { risk: 'Chybný popisek CMD/GND na desce', impact: 'zkrat flash linky, deska nenaběhne', fix: 'GND brát jen podle pinoutu prodejce' },
-  { risk: 'Neznámé hodnoty RC na modulu enkodéru', impact: 'jiné časování, než je v kap. 7', fix: 'změřit R a C, přepočítat' },
-  { risk: 'I²C 400 kHz s 10 kΩ pull-upy', impact: 'chyby přenosu, „rozsypaný“ obraz', fix: '100 kHz, nebo přidat 4,7 kΩ' },
-  { risk: 'Drift dotyku (teplota, vlhkost, Wi-Fi)', impact: 'falešné nebo chybějící dotyky', fix: 'filtrované čtení, průběžná rekalibrace, kalibrace po startu Wi-Fi' },
-  { risk: 'Dlouhé nebo svazkované vodiče k ploškám', impact: 'velká Cp, nízká citlivost, přeslech', fix: 'max 150 mm, nesvazovat, finálně vlastní DPS' },
-  { risk: 'Mechanické opotřebení enkodéru', impact: 'tuhnutí, výpadky pulzů', fix: 'mít náhradní kus, případně později optický enkodér' },
-  { risk: 'Deska ESP32 není určena pro baterii', impact: 'vysoký klidový odběr i v deep-sleep', fix: 'pro bateriový provoz zvážit jinou desku' },
-];
-
-/* ---------- Kap. 8 – firmware (doslovně) ---------- */
-
-export const FIRMWARE = `// ESP32 + OLED SH1106 (I2C) + 6x touch + rotační enkodér – testovací firmware
-#include <Arduino.h>
-#include <Wire.h>
-#include <U8g2lib.h>
-
-// ---- Piny (kap. 5) ----
-constexpr int PIN_SDA = 21, PIN_SCL = 22;
-constexpr int PIN_ENC_A = 25, PIN_ENC_B = 26, PIN_ENC_KEY = 23;
-constexpr uint8_t TOUCH_PINS[6] = {4, 13, 14, 27, 33, 32};   // T0 T4 T6 T7 T8 T9
-
-U8G2_SH1106_128X64_NONAME_F_HW_I2C oled(U8G2_R0, U8X8_PIN_NONE);
-
-// ---- Enkodér: kvadraturní dekodér se stavovou tabulkou ----
-volatile int32_t encCount = 0;
-volatile uint8_t encState = 0;
-const int8_t QDEC[16] = {0,-1,1,0, 1,0,0,-1, -1,0,0,1, 0,1,-1,0};
-
-void IRAM_ATTR encISR() {
-  encState = ((encState << 2) | (digitalRead(PIN_ENC_A) << 1) | digitalRead(PIN_ENC_B)) & 0x0F;
-  encCount += QDEC[encState];
-}
-
-// ---- Dotyk: klidové hodnoty a práh ----
-uint16_t baseline[6];
-constexpr float TOUCH_RATIO = 0.80f;   // dotyk = pokles pod 80 % klidu (ladit, kap. 10)
-
-void calibrateTouch() {                 // při kalibraci se plošek nedotýkat!
-  for (int i = 0; i < 6; i++) {
-    uint32_t sum = 0;
-    for (int k = 0; k < 32; k++) { sum += touchRead(TOUCH_PINS[i]); delay(2); }
-    baseline[i] = sum / 32;
-  }
-}
-
-void setup() {
-  Serial.begin(115200);
-  Wire.begin(PIN_SDA, PIN_SCL);
-  oled.setI2CAddress(0x3C << 1);       // U8g2 chce 8bitovou adresu
-  oled.setBusClock(100000);            // 400000 jen s přidanými 4,7k pull-upy (kap. 3.4)
-  oled.begin();
-
-  pinMode(PIN_ENC_A, INPUT);           // pull-upy má modul enkodéru
-  pinMode(PIN_ENC_B, INPUT);
-  pinMode(PIN_ENC_KEY, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIN_ENC_A), encISR, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(PIN_ENC_B), encISR, CHANGE);
-
-  // Pokud projekt používá Wi-Fi, zapni ji PŘED kalibrací dotyku.
-  calibrateTouch();
-}
-
-void loop() {
-  // Dotyk
-  uint8_t touched = 0;
-  for (int i = 0; i < 6; i++) {
-    uint16_t v = touchRead(TOUCH_PINS[i]);
-    if (v < baseline[i] * TOUCH_RATIO) touched |= (1 << i);
-  }
-
-  // Tlačítko enkodéru – debounce 30 ms
-  static bool lastRaw = false, keyPressed = false;
-  static uint32_t tChange = 0;
-  bool raw = (digitalRead(PIN_ENC_KEY) == LOW);
-  if (raw != lastRaw) { lastRaw = raw; tChange = millis(); }
-  if (millis() - tChange > 30) keyPressed = raw;
-
-  int32_t detent = encCount / 4;       // 4 hrany = 1 cvaknutí (kap. 7.2)
-
-  // Displej
-  oled.clearBuffer();
-  oled.setFont(u8g2_font_6x12_tr);
-  oled.setCursor(0, 12); oled.printf("ENC: %ld", (long)detent);
-  oled.setCursor(0, 26); oled.printf("KEY: %s", keyPressed ? "STISK" : "-");
-  for (int i = 0; i < 6; i++) {
-    int x = 4 + i * 20;
-    if (touched & (1 << i)) oled.drawBox(x, 40, 16, 16);
-    else                    oled.drawFrame(x, 40, 16, 16);
-  }
-  oled.sendBuffer();
-
-  // Ladicí výpis pro nastavení prahů
-  static uint32_t tLog = 0;
-  if (millis() - tLog > 500) {
-    tLog = millis();
-    for (int i = 0; i < 6; i++) Serial.printf("T%d=%u/%u  ", i + 1, touchRead(TOUCH_PINS[i]), baseline[i]);
-    Serial.println();
-  }
-  delay(20);
-}
-`;
-
-export const FIRMWARE_NOTES: readonly string[] = [
-  'Řadič je SH1106, ne SSD1306. S ovladačem SSD1306 bude obraz posunutý o 2 sloupce.',
-  'U8g2 si takt I²C nastavuje sám, proto setBusClock() místo Wire.setClock().',
-  'Pro finální verzi nahraď touchRead() filtrovaným čtením (IIR filtr touch ovladače ESP-IDF) a doplň průběžnou rekalibraci klidové hodnoty. Hodnoty driftují s teplotou a napájením.',
-  'Pokud se enkodér točí obráceně, prohoď v encISR() pořadí A a B.',
-];
-
-/* ---------- Stav projektu (kap. 1) ---------- */
-
-export const STATUS_DONE: readonly string[] = [
-  'HW zapojení navržené a zdokumentované',
-  'Alokace GPIO a omezení ESP32',
-  'Návrh kapacitních plošek podle Espressif',
-  'Výpočet časování I²C a RC filtru enkodéru',
-  'Testovací firmware pro ověření celého HW',
-  'Kusovník a kontrolní seznam oživení',
-];
-
-export const STATUS_OPEN: readonly string[] = [
-  'Ověřit hodnoty R/C na desce enkodéru měřením',
-  'Odladit prahy dotyku na finálním krytu',
-  'Rozhodnout o rychlosti I²C: 100 vs. 400 kHz',
-];
-
-export const SOURCES: readonly { label: string; href: string }[] = [
-  { label: 'LaskaKit – IoT ESP-WROOM-32 rev.1, CP2102', href: 'https://www.laskakit.cz/' },
-  { label: 'LaskaKit – OLED displej 128×64 1,3" I²C', href: 'https://www.laskakit.cz/' },
-  { label: 'LaskaKit – Rotační enkodér s tlačítkem a RC filtrem', href: 'https://www.laskakit.cz/' },
-  { label: 'Espressif – Touch Sensor Application Note', href: 'https://github.com/espressif/esp-iot-solution/blob/release/v1.0/documents/touch_pad_solution/touch_sensor_design_en.md' },
-  { label: 'Espressif – ESP-IDF Touch Sensor API', href: 'https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/touch_pad.html' },
+  'Bez napájení: mezi 3V3 a GND není zkrat, pin „5V“ enkodéru vede na 3V3, ne na 5 V.',
+  'Po připojení USB: v logu je I2C zarizeni: 0x3C.',
+  'Displej ukazuje hodiny, dvojtečka bliká.',
+  'Enkodér: na obrazovce Nastavení posouvá kurzor po jednom řádku na cvak, správným směrem.',
+  'Tlačítko: krátký stisk je jedna akce, dlouhý (> 600 ms) přepne obrazovku.',
+  'Plošky: t v klidu bez DOTYK, při doteku každé plošky DOTYK jen u ní.',
+  'S Wi-Fi: žádné falešné dotyky v klidu.',
 ];

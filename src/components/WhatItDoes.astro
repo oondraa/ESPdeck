@@ -1,0 +1,130 @@
+---
+import { GESTURES } from '../data/espdeck';
+---
+
+<section class="section what" id="umi" aria-labelledby="what-title" data-demo-root>
+  <div class="wrap what-grid">
+    <div class="what-side">
+      <h2 id="what-title" class="h2">Funguje i bez počítače</h2>
+      <p class="lede what-lede">
+        Hodiny, hudba a světla běží přímo z decku přes Wi-Fi. Čas si bere z NTP. S aplikací přibudou klávesové zkratky.
+      </p>
+      <div class="what-screen">
+        <canvas data-demo-canvas width="512" height="256" role="img" aria-label="Ukázka displeje decku podle vybraného gesta."></canvas>
+      </div>
+    </div>
+
+    <ul class="gestures">
+      {GESTURES.map((g) => (
+        <li>
+          <button class="gesture" type="button" aria-pressed="false" data-demo={g.demo}>
+            <span class="g-in">{g.input}</span>
+            <span class="g-out">{g.result}</span>
+            <span class="g-more">{g.detail}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .what-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+  .what-side {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+  }
+  .what-lede {
+    margin-top: 20px;
+  }
+  .what-screen {
+    margin-top: clamp(24px, 3vw, 40px);
+    width: calc(100% - 20px);
+    max-width: 440px;
+    aspect-ratio: 2 / 1;
+    background: #000;
+    padding: 0;
+    outline: 10px solid var(--bg-3);
+    outline-offset: 0;
+    margin-left: 10px;
+  }
+  .what-screen canvas {
+    width: 100%;
+    height: 100%;
+  }
+  .gestures {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .gesture {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: 4px 24px;
+    width: 100%;
+    text-align: left;
+    padding: clamp(16px, 2vw, 24px) 0 clamp(16px, 2vw, 24px) 16px;
+    background: none;
+    border: 0;
+    border-left: 2px solid var(--line);
+    cursor: pointer;
+    transition:
+      border-color 160ms var(--ease-out),
+      background-color 160ms var(--ease-out);
+  }
+  .gesture:hover {
+    border-left-color: var(--fg-3);
+    background: var(--bg-2);
+  }
+  .gesture[aria-pressed='true'] {
+    border-left-color: var(--copper-2);
+    background: var(--bg-2);
+  }
+  .gesture:active .g-out {
+    transform: translateX(2px);
+  }
+  .g-in {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-2);
+    padding-top: 0.5em;
+  }
+  .g-out {
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    transition: transform 120ms var(--ease-out);
+  }
+  .g-more {
+    grid-column: 2;
+    color: var(--fg-2);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 900px) {
+    .what-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .what-side {
+      position: static;
+    }
+  }
+  @media (max-width: 560px) {
+    .gesture {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .g-more {
+      grid-column: 1;
+    }
+    .g-in {
+      padding-top: 0;
+    }
+  }
+</style>
