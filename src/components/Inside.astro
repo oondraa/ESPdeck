@@ -2,10 +2,10 @@
 import { withBase } from '../lib/url';
 
 const STEPS = [
-  { id: 'esp', ref: 'U1', name: 'ESP32-S3 DevKit', big: 'WROOM-1 N16', specs: ['16 MB flash', 'USB-UART CH9102', 'μŠup spínaný GPIO47'], tag: 'U1 ESP32-S3' },
-  { id: 'oled', ref: 'U2', name: 'OLED 1,3"', big: '128×64', specs: ['Řadič SH1106', 'I²C 0x3C na 400 kHz', 'SDA GPIO42, SCL GPIO2'], tag: 'U2 SH1106' },
-  { id: 'enc', ref: 'U3', name: 'Enkodér s tlačítkem', big: '20 pulzů/ot.', specs: ['4 hrany = 1 cvak', 'GPIO15, 16, 17', 'Pin „5V“ na 3V3'], tag: 'U3 enkodér' },
-  { id: 'pads', ref: 'E1 až E6', name: 'Dotykové plošky', big: '6 kanálů', specs: ['GPIO 4, 5, 6, 7, 8, 1', 'Dotyk nad 120 % základu', 'Čtení každých 10 ms'], tag: 'E1 až E6' },
+  { id: 'esp', ref: 'U1', name: 'ESP32-S3 DevKit', big: 'WROOM-1 N16', specs: ['16 MB flash', 'USB-UART CH9102', 'μŠup spínaný GPIO47'], tag: 'ESP32-S3' },
+  { id: 'oled', ref: 'U2', name: 'OLED 1,3"', big: '128×64', specs: ['Řadič SH1106', 'I²C 0x3C na 400 kHz', 'SDA GPIO42, SCL GPIO2'], tag: 'SH1106' },
+  { id: 'enc', ref: 'U3', name: 'Enkodér s tlačítkem', big: '20 pulzů/ot.', specs: ['4 hrany = 1 cvak', 'GPIO15, 16, 17', 'Pin „5V“ na 3V3'], tag: 'enkodér' },
+  { id: 'pads', ref: 'E1 až E6', name: 'Dotykové plošky', big: '6 kanálů', specs: ['GPIO 4, 5, 6, 7, 8, 1', 'Dotyk nad 120 % základu', 'Čtení každých 10 ms'], tag: 'plošky' },
 ] as const;
 ---
 
@@ -18,14 +18,21 @@ const STEPS = [
           <img
             class="stage-poster"
             src={withBase('poster-inside.webp')}
-            width="1440"
-            height="1080"
+            width="1200"
+            height="1200"
             alt="Rozložený pohled na prototyp: deska, modul OLED, enkodér a šest plošek oddělené v prostoru."
             loading="lazy"
             decoding="async"
           />
           <div class="stage-mount" data-stage-mount></div>
-          {STEPS.map((s) => <span class="tag" data-tag={s.id} aria-hidden="true">{s.tag}</span>)}
+          <svg class="leaders" aria-hidden="true">
+            {STEPS.map((s) => <line data-leader={s.id} />)}
+          </svg>
+          {STEPS.map((s) => (
+            <span class="tag" data-tag={s.id} aria-hidden="true">
+              <b>{s.ref}</b><span class="tag-more"> {s.tag}</span>
+            </span>
+          ))}
         </div>
       </div>
       <ol class="inside-steps">
@@ -60,7 +67,8 @@ const STEPS = [
     align-self: start;
   }
   .inside-stage .stage-host {
-    max-height: calc(100svh - var(--header-h) - 32px);
+    aspect-ratio: auto;
+    height: calc(100svh - var(--header-h) - 32px);
   }
   .inside-steps {
     list-style: none;
@@ -103,6 +111,26 @@ const STEPS = [
     color: var(--fg-2);
   }
 
+  .leaders {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .leaders line {
+    stroke: var(--fg-2);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .leaders line[data-on] {
+    opacity: 0.8;
+  }
+  .tag b {
+    font-weight: 600;
+  }
   .tag {
     position: absolute;
     left: 0;
@@ -121,22 +149,37 @@ const STEPS = [
   .tag[data-on] {
     opacity: 1;
   }
+  .tag[data-active] {
+    border-color: var(--copper-2);
+  }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1023.98px) {
     .inside-grid {
       grid-template-columns: minmax(0, 1fr);
     }
     .inside-stage {
-      top: var(--header-h);
-      background: var(--bg);
-      z-index: 2;
-      padding-block: 8px;
+      position: static;
     }
     .inside-stage .stage-host {
-      aspect-ratio: 16 / 10;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      max-height: 72svh;
+    }
+    .inside-steps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
     }
     .step {
-      min-height: 34svh;
+      min-height: 0;
+    }
+  }
+  @media (max-width: 560px) {
+    .inside-steps {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .tag-more {
+      display: none;
     }
   }
 </style>

@@ -329,6 +329,25 @@ pre,
 .stage-mount {
   pointer-events: none;
 }
+/* Živý displej nad statickým obrázkem. Přesnou polohu nastavuje deck.ts homografií. */
+.stage-oled {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 256px;
+  height: 128px;
+  max-width: none;
+  transform-origin: 0 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 300ms var(--ease-out);
+}
+.stage-oled:not([data-placed]) {
+  opacity: 0;
+}
+.stage-host[data-ready]:has(.stage-canvas) .stage-oled {
+  opacity: 0;
+}
 .stage-canvas {
   display: block;
   width: 100% !important;

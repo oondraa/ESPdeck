@@ -89,31 +89,31 @@ function roundedRect(w: number, d: number, r: number): Shape {
 /* ---------- Materiály ---------- */
 
 export interface Materials {
-  readonly copper: MeshPhysicalMaterial[];
+  readonly copper: MeshStandardMaterial[];
   readonly gold: MeshStandardMaterial;
   readonly mask: MeshStandardMaterial;
   readonly edge: MeshStandardMaterial;
   readonly steel: MeshStandardMaterial;
   readonly plastic: MeshStandardMaterial;
   readonly header: MeshStandardMaterial;
-  readonly glass: MeshPhysicalMaterial;
+  readonly glass: MeshStandardMaterial;
   readonly connector: MeshStandardMaterial;
   readonly smdDark: MeshStandardMaterial;
   readonly smdTan: MeshStandardMaterial;
   readonly solder: MeshStandardMaterial;
 }
 
-function brushedRoughness(rand: () => number): CanvasTexture {
+function brushedRoughness(rand: () => number, size: number, strokes: number): CanvasTexture {
   const t = canvasTexture(
-    512,
-    512,
+    size,
+    size,
     (c) => {
       c.fillStyle = 'rgb(112,112,112)';
-      c.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 2600; i++) {
+      c.fillRect(0, 0, size, size);
+      for (let i = 0; i < strokes; i++) {
         const v = 86 + rand() * 72;
         c.fillStyle = `rgba(${v},${v},${v},0.34)`;
-        c.fillRect(rand() * 512 - 90, rand() * 512, 80 + rand() * 340, 0.6 + rand() * 1.3);
+        c.fillRect(rand() * size - size * 0.18, rand() * size, size * (0.16 + rand() * 0.66), 0.6 + rand() * 1.3);
       }
     },
     false,
@@ -123,28 +123,28 @@ function brushedRoughness(rand: () => number): CanvasTexture {
   return t;
 }
 
-function patina(rand: () => number): CanvasTexture {
+function patina(rand: () => number, size: number): CanvasTexture {
   return canvasTexture(
-    256,
-    256,
+    size,
+    size,
     (c) => {
       c.fillStyle = '#c47f4c';
-      c.fillRect(0, 0, 256, 256);
+      c.fillRect(0, 0, size, size);
       for (let i = 0; i < 26; i++) {
-        const x = rand() * 256;
-        const y = rand() * 256;
-        const r = 26 + rand() * 90;
+        const x = rand() * size;
+        const y = rand() * size;
+        const r = (26 + rand() * 90) * (size / 256);
         const g = c.createRadialGradient(x, y, 0, x, y, r);
         const dark = rand() > 0.5;
         g.addColorStop(0, dark ? 'rgba(128,78,48,0.14)' : 'rgba(236,184,140,0.12)');
         g.addColorStop(1, 'rgba(0,0,0,0)');
         c.fillStyle = g;
-        c.fillRect(0, 0, 256, 256);
+        c.fillRect(0, 0, size, size);
       }
       for (let i = 0; i < 40; i++) {
         c.fillStyle = 'rgba(70,104,84,0.07)';
         c.beginPath();
-        c.arc(rand() * 256, rand() * 256, 0.8 + rand() * 2.6, 0, Math.PI * 2);
+        c.arc(rand() * size, rand() * size, 0.8 + rand() * 2.6, 0, Math.PI * 2);
         c.fill();
       }
     },
@@ -152,11 +152,16 @@ function patina(rand: () => number): CanvasTexture {
   );
 }
 
-export function createMaterials(): Materials {
+export function createMaterials(simple: boolean): Materials {
   const rand = mulberry(7);
-  const rough = brushedRoughness(rand);
+  const rough = brushedRoughness(rand, simple ? 128 : 512, simple ? 320 : 2600);
+  const shared = simple ? patina(rand, 96) : null;
   const copper = Array.from({ length: 6 }, () => {
-    const p = patina(rand);
+    const p = shared ?? patina(rand, 256);
+    if (simple) {
+      // Bez anizotropie: fyzikální shader je na telefonu nejdražší položka celé scény.
+      return new MeshStandardMaterial({ map: p, metalness: 1, roughness: 0.74, roughnessMap: rough, envMapIntensity: 0.9 });
+    }
     return new MeshPhysicalMaterial({
       map: p,
       color: 0xffffff,
@@ -176,7 +181,9 @@ export function createMaterials(): Materials {
     steel: new MeshStandardMaterial({ color: 0xaeb2b6, metalness: 1, roughness: 0.42, envMapIntensity: 0.62 }),
     plastic: new MeshStandardMaterial({ color: 0x25262a, metalness: 0, roughness: 0.82 }),
     header: new MeshStandardMaterial({ color: 0x18181a, metalness: 0, roughness: 0.68 }),
-    glass: new MeshPhysicalMaterial({ color: 0x030405, metalness: 0, roughness: 0.2, clearcoat: 0.6, clearcoatRoughness: 0.12, envMapIntensity: 0.07 }),
+    glass: simple
+      ? new MeshStandardMaterial({ color: 0x030405, metalness: 0, roughness: 0.2, envMapIntensity: 0.07 })
+      : new MeshPhysicalMaterial({ color: 0x030405, metalness: 0, roughness: 0.2, clearcoat: 0.6, clearcoatRoughness: 0.12, envMapIntensity: 0.07 }),
     connector: new MeshStandardMaterial({ color: 0xe6e0d0, metalness: 0, roughness: 0.6 }),
     smdDark: new MeshStandardMaterial({ color: 0x101012, metalness: 0.1, roughness: 0.5 }),
     smdTan: new MeshStandardMaterial({ color: 0x9c7a55, metalness: 0, roughness: 0.55 }),
@@ -186,7 +193,8 @@ export function createMaterials(): Materials {
 
 /* ---------- Desky ---------- */
 
-function silk(c: CanvasRenderingContext2D, text: string, x: number, y: number, px: number, align: CanvasTextAlign = 'left'): void {
+function silk(c: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, align: CanvasTextAlign = 'left'): void {
+  const px = (size * c.canvas.height) / 512;
   c.fillStyle = 'rgba(232,232,226,0.86)';
   c.font = `600 ${px}px "JetBrains Mono Variable", ui-monospace, monospace`;
   c.textAlign = align;
@@ -211,8 +219,8 @@ function traces(c: CanvasRenderingContext2D, w: number, h: number, rand: () => n
   }
 }
 
-function pcb(mats: Materials, w: number, d: number, paint: (c: CanvasRenderingContext2D, W: number, H: number) => void): Mesh {
-  const H = 512;
+function pcb(mats: Materials, w: number, d: number, simple: boolean, paint: (c: CanvasRenderingContext2D, W: number, H: number) => void): Mesh {
+  const H = simple ? 256 : 512;
   const W = Math.round((H * w) / d);
   const top = new MeshStandardMaterial({
     map: canvasTexture(
@@ -227,7 +235,7 @@ function pcb(mats: Materials, w: number, d: number, paint: (c: CanvasRenderingCo
     ),
     metalness: 0.15,
     roughness: 0.5,
-    envMapIntensity: 0.4,
+    envMapIntensity: 0.55,
   });
   return box(w, 0.16, d, [mats.edge, mats.edge, top, mats.mask, mats.edge, mats.edge]);
 }
@@ -283,23 +291,22 @@ export interface Part {
   readonly home: Vector3;
   readonly spread: Vector3;
   readonly layers: readonly Layer[];
-  readonly anchor: Vector3;
 }
 
 function layer(obj: Object3D, lift: number): Layer {
   return { obj, base: obj.position.clone(), lift: new Vector3(0, lift, 0) };
 }
 
-function buildEsp(mats: Materials, rand: () => number): Part {
+function buildEsp(mats: Materials, rand: () => number, simple: boolean): Part {
   const root = new Group();
   const w = 7;
   const d = 2.7;
   root.add(
-    pcb(mats, w, d, (c, W, H) => {
+    pcb(mats, w, d, simple, (c, W, H) => {
       traces(c, W, H, rand);
-      silk(c, 'ESP32-S3 DevKit', W * 0.56, H * 0.74, 44);
+      silk(c, 'ESP32-S3 DevKit', W * 0.64, H * 0.74, 44);
       silk(c, 'CH9102', W * 0.82, H * 0.3, 30);
-      silk(c, 'μŠup', W * 0.92, H * 0.74, 28, 'center');
+      silk(c, 'μŠup', W * 0.436, H * 0.6, 28, 'center');
     }),
   );
 
@@ -349,7 +356,7 @@ function buildEsp(mats: Materials, rand: () => number): Part {
   root.add(headerStrip(mats, 20, -2.85, 0.3, 1.22));
 
   root.add(box(0.72, 0.3, 0.9, mats.steel, 3.3, 0.16, 0));
-  root.add(microConnector(mats, 3.05, 0.86));
+  root.add(microConnector(mats, -0.45, 0.86));
 
   const home = new Vector3(-0.1, 0, -3.8);
   root.position.copy(home);
@@ -358,9 +365,8 @@ function buildEsp(mats: Materials, rand: () => number): Part {
     id: 'esp',
     root,
     home,
-    spread: new Vector3(0, 1.4, -1.9),
-    layers: [layer(can, 1.3)],
-    anchor: new Vector3(-1.5, 0.6, 0),
+    spread: new Vector3(0.1, 0, 3.8),
+    layers: [layer(can, 0.7)],
   };
 }
 
@@ -368,15 +374,14 @@ export interface OledPart extends Part {
   readonly displayPlane: Mesh;
 }
 
-function buildOled(mats: Materials, rand: () => number, screen: Texture): OledPart {
+function buildOled(mats: Materials, rand: () => number, screen: Texture, simple: boolean): OledPart {
   const root = new Group();
   const w = 4.1;
   const d = 3.8;
   root.add(
-    pcb(mats, w, d, (c, W, H) => {
+    pcb(mats, w, d, simple, (c, W, H) => {
       traces(c, W, H, rand);
-      silk(c, 'OLED 1.3" I2C', W * 0.5, H * 0.08, 34, 'center');
-      silk(c, 'SH1106', W * 0.5, H * 0.92, 30, 'center');
+      silk(c, 'OLED 1.3" I2C  SH1106', W * 0.5, H * 0.915, 30, 'center');
     }),
   );
   for (const [x, z] of [[-1.8, -1.65], [1.8, -1.65], [-1.8, 1.65], [1.8, 1.65]] as const) root.add(ring(mats, x, z));
@@ -408,9 +413,8 @@ function buildOled(mats: Materials, rand: () => number, screen: Texture): OledPa
     id: 'oled',
     root,
     home,
-    spread: new Vector3(-1.6, 2.2, 0.8),
-    layers: [layer(panel, 1.15)],
-    anchor: new Vector3(0, 0.7, 0),
+    spread: new Vector3(1.75, 2.5, -0.05),
+    layers: [layer(panel, 0.6)],
     displayPlane,
   };
 }
@@ -433,14 +437,16 @@ function knobShape(lobes: number, r: number, dr: number): Shape {
   return s;
 }
 
-function buildEncoder(mats: Materials, rand: () => number): EncoderPart {
+function buildEncoder(mats: Materials, rand: () => number, simple: boolean): EncoderPart {
   const root = new Group();
   const w = 3.2;
   const d = 3.4;
   root.add(
-    pcb(mats, w, d, (c, W, H) => {
+    pcb(mats, w, d, simple, (c, W, H) => {
       traces(c, W, H, rand);
-      silk(c, 'S1  S2  Key  5V  GND', W * 0.5, H * 0.91, 26, 'center');
+      ['S1', 'S2', 'Key', '5V', 'GND'].forEach((t, i) => {
+        silk(c, t, W * (0.5 + (-0.6 + i * 0.3) / w), H * 0.82, 21, 'center');
+      });
     }),
   );
   root.add(goldRow(mats, 5, -0.6, 0.3, 1.45, 0.166, 0.14));
@@ -475,9 +481,8 @@ function buildEncoder(mats: Materials, rand: () => number): EncoderPart {
     id: 'enc',
     root,
     home,
-    spread: new Vector3(1.8, 1.6, 0.9),
-    layers: [layer(can, 0.95), layer(knob, 2.4)],
-    anchor: new Vector3(0, 1.9, -0.25),
+    spread: new Vector3(-2.75, 4.9, -0.05),
+    layers: [layer(can, 0.42), layer(knob, 1.05)],
     knob,
   };
 }
@@ -487,7 +492,7 @@ export interface PadPart {
   readonly root: Group;
   readonly home: Vector3;
   readonly spread: Vector3;
-  readonly mat: MeshPhysicalMaterial;
+  readonly mat: MeshStandardMaterial;
 }
 
 const PAD_SIZE = 1.14;
@@ -503,7 +508,7 @@ function buildPads(mats: Materials, rand: () => number): PadPart[] {
 
   return Array.from({ length: 6 }, (_, i) => {
     const root = new Group();
-    const mat = mats.copper[i] as MeshPhysicalMaterial;
+    const mat = mats.copper[i] as MeshStandardMaterial;
     const mesh = shadowed(new Mesh(geo, mat));
     root.add(mesh);
     const blob = new Mesh(new SphereGeometry(0.09, 12, 8), mats.solder);
@@ -513,7 +518,7 @@ function buildPads(mats: Materials, rand: () => number): PadPart[] {
     const home = new Vector3(-3.75 + i * 1.5, 0, 3.5);
     root.position.copy(home);
     root.rotation.y = (rand() - 0.5) * 0.05;
-    const spread = new Vector3((i - 2.5) * 0.34, 0.9 + (i % 2) * 0.55, 1.5);
+    const spread = new Vector3(0, 8.3 + (i % 2) * 0.22, -3.5);
     return { mesh, root, home, spread, mat };
   });
 }
@@ -522,69 +527,82 @@ function buildPads(mats: Materials, rand: () => number): PadPart[] {
 
 const WIRE_COLORS = { red: 0x9c3a33, black: 0x2a2a2c, green: 0x47705a, blue: 0x3d5f8c, amber: 0xb07a3a, grey: 0x7c7a74 } as const;
 
-function wire(points: readonly (readonly [number, number, number])[], color: number, radius = 0.038): Mesh {
-  const curve = new CatmullRomCurve3(points.map(([x, y, z]) => new Vector3(x, y, z)));
+type P3 = readonly [number, number, number];
+
+function wire(points: readonly P3[], color: number, radius: number, tubular: number, radial: number): Mesh {
+  const curve = new CatmullRomCurve3(points.map(([x, y, z]) => new Vector3(x, y, z)), false, 'centripetal');
   const mat = new MeshStandardMaterial({ color, metalness: 0, roughness: 0.62 });
-  return shadowed(new Mesh(new TubeGeometry(curve, 42, radius, 6, false), mat));
+  return shadowed(new Mesh(new TubeGeometry(curve, tubular, radius, radial, false), mat));
+}
+
+/** Svazek vede kanálem mezi OLED a enkodérem, takže nekříží žádný popisek na DPS. */
+function padWirePath(i: number): P3[] {
+  const x = -3.75 + i * 1.5 + 0.32;
+  const lane = 0.48 + i * 0.09;
+  return [
+    [x, 0.06, 3.12],
+    [x + (lane - x) * 0.18, 0.14, 2.74],
+    [x + (lane - x) * 0.82, 0.16, 2.42],
+    [lane, 0.16, 1.7],
+    [lane, 0.16, -1.2],
+    [lane + (-0.25 + i * 0.3 - lane) * 0.7, 0.34, -2.2],
+    [-0.25 + i * 0.3, 0.6, -2.58],
+  ];
 }
 
 function buildWires(simple: boolean): Group {
   const g = new Group();
-  // Kabel μŠup: čtyři vodiče vedle sebe z desky do OLED
+  const tubular = simple ? 14 : 36;
+  const radial = simple ? 3 : 6;
+
+  // Kabel μŠup: krátce z konektoru desky rovnou do OLED
   const usup: readonly number[] = [WIRE_COLORS.black, WIRE_COLORS.red, WIRE_COLORS.blue, WIRE_COLORS.amber];
   usup.forEach((color, i) => {
     const o = i * 0.07;
     g.add(
       wire(
         [
-          [2.95 + o, 0.34, -2.78],
-          [2.9 + o, 0.56, -2.42],
-          [0.6 + o * 0.6, 0.4, -2.46],
-          [-1.45 + o, 0.32, -1.92],
-          [-1.5 + o, 0.34, -1.58],
+          [-0.66 + o, 0.34, -2.78],
+          [-0.62 + o, 0.5, -2.4],
+          [-0.5 + o, 0.42, -2.05],
+          [-0.46 + o, 0.34, -1.74],
         ],
         color,
         0.03,
+        tubular,
+        radial,
       ),
     );
   });
-  if (simple) return g;
 
-  // Enkodér: pět vodičů k lištám desky
+  // Enkodér: pět vodičů vede pod modulem, popisky vývodů zůstávají volné
   const enc: readonly number[] = [WIRE_COLORS.red, WIRE_COLORS.black, WIRE_COLORS.green, WIRE_COLORS.blue, WIRE_COLORS.amber];
-  enc.forEach((color, i) => {
+  const encWires = simple ? [0, 2, 4] : [0, 1, 2, 3, 4];
+  encWires.forEach((i) => {
     const x = 2.15 + i * 0.3;
+    const target = 1.55 + i * 0.3;
     g.add(
       wire(
         [
           [x, 0.2, 1.5],
-          [x + 0.5, 0.42, 1.95],
-          [4.65 + i * 0.1, 0.5, 0.6],
-          [4.3 + i * 0.1, 0.56, -2.1],
-          [2.3 - i * 0.3, 0.6, -2.58],
+          [x, 0.16, 1.82],
+          [x, 0.03, 1.74],
+          [x, 0.02, 0],
+          [x + (target - x) * 0.7, 0.03, -1.72],
+          [target, 0.3, -2.2],
+          [target, 0.6, -2.58],
         ],
-        color,
+        enc[i] ?? WIRE_COLORS.grey,
+        0.034,
+        tubular,
+        radial,
       ),
     );
   });
 
-  // Plošky: každá vlastní vodič
-  for (let i = 0; i < 6; i++) {
-    const x = -3.75 + i * 1.5;
-    g.add(
-      wire(
-        [
-          [x + 0.32, 0.06, 3.12],
-          [x + 0.42, 0.36, 2.65],
-          [-4.25 + i * 0.16, 0.42, 1.9 - i * 0.02],
-          [-4.4 + i * 0.14, 0.5, -0.8],
-          [-2.2 + i * 0.3, 0.6, -2.58],
-        ],
-        WIRE_COLORS.grey,
-        0.032,
-      ),
-    );
-  }
+  // Plošky: každá vlastní vodič, na mobilu každý druhý kvůli počtu vykreslení
+  const padWires = simple ? [0, 2, 3, 5] : [0, 1, 2, 3, 4, 5];
+  padWires.forEach((i) => g.add(wire(padWirePath(i), WIRE_COLORS.grey, 0.03, simple ? 20 : 48, radial)));
   return g;
 }
 
@@ -609,15 +627,23 @@ export function createScreenTexture(canvas: HTMLCanvasElement): CanvasTexture {
   return t;
 }
 
-export function buildDeck(screen: Texture, simple: boolean): DeckModel {
-  const mats = createMaterials();
+const nextTask = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
+/** Stavba je rozdělená do krátkých úloh, aby neblokovala hlavní vlákno. */
+export async function buildDeck(screen: Texture, simple: boolean): Promise<DeckModel> {
+  const mats = createMaterials(simple);
+  await nextTask();
   const rand = mulberry(21);
   const root = new Group();
-  const esp = buildEsp(mats, rand);
-  const oled = buildOled(mats, rand, screen);
-  const encoder = buildEncoder(mats, rand);
+  const esp = buildEsp(mats, rand, simple);
+  await nextTask();
+  const oled = buildOled(mats, rand, screen, simple);
+  await nextTask();
+  const encoder = buildEncoder(mats, rand, simple);
+  await nextTask();
   const pads = buildPads(mats, rand);
   const wires = buildWires(simple);
+  await nextTask();
   root.add(esp.root, oled.root, encoder.root, wires);
   pads.forEach((p) => root.add(p.root));
   return { root, parts: [esp, oled, encoder], oled, encoder, pads, wires };

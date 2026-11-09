@@ -38,6 +38,49 @@ function shouldUse3d(force: boolean): boolean {
   }
 }
 
+/** Rohy aktivní plochy displeje na posteru (zlomky šířky a výšky) ze stejné kamery jako render. */
+const POSTER_SCREEN: readonly (readonly [number, number])[] = [[0.219, 0.4099], [0.4928, 0.4141], [0.4903, 0.5615], [0.2028, 0.5569]];
+
+/** Matice CSS, která zobrazí obdélník w×h na čtyři body v pixelech hostitele. */
+function homography(w: number, h: number, q: readonly (readonly [number, number])[]): string | null {
+  const src: readonly (readonly [number, number])[] = [[0, 0], [w, 0], [w, h], [0, h]];
+  const m: number[][] = [];
+  for (let i = 0; i < 4; i++) {
+    const [x, y] = src[i] as readonly [number, number];
+    const [u, v] = q[i] as readonly [number, number];
+    m.push([x, y, 1, 0, 0, 0, -x * u, -y * u, u]);
+    m.push([0, 0, 0, x, y, 1, -x * v, -y * v, v]);
+  }
+  for (let c = 0; c < 8; c++) {
+    let p = c;
+    for (let r = c + 1; r < 8; r++) if (Math.abs(m[r]?.[c] ?? 0) > Math.abs(m[p]?.[c] ?? 0)) p = r;
+    const pivotRow = m[p] as number[];
+    m[p] = m[c] as number[];
+    m[c] = pivotRow;
+    const pivot = pivotRow[c] ?? 0;
+    if (Math.abs(pivot) < 1e-9) return null;
+    for (let k = c; k < 9; k++) pivotRow[k] = (pivotRow[k] ?? 0) / pivot;
+    for (let r = 0; r < 8; r++) {
+      if (r === c) continue;
+      const row = m[r] as number[];
+      const f = row[c] ?? 0;
+      for (let k = c; k < 9; k++) row[k] = (row[k] ?? 0) - f * (pivotRow[k] ?? 0);
+    }
+  }
+  const g = (r: number): number => m[r]?.[8] ?? 0;
+  return `matrix3d(${g(0)},${g(3)},0,${g(6)},${g(1)},${g(4)},0,${g(7)},0,0,1,0,${g(2)},${g(5)},0,1)`;
+}
+
+function placeOverlay(host: HTMLElement, canvas: HTMLCanvasElement): void {
+  const w = host.clientWidth;
+  const h = host.clientHeight;
+  if (w === 0 || h === 0) return;
+  const matrix = homography(256, 128, POSTER_SCREEN.map(([x, y]) => [x * w, y * h] as const));
+  if (!matrix) return;
+  canvas.style.transform = matrix;
+  canvas.setAttribute('data-placed', '');
+}
+
 function rail(detail: { kind: string; i?: number; down?: boolean; d?: number }): void {
   window.dispatchEvent(new CustomEvent('espdeck:rail', { detail }));
 }
@@ -228,6 +271,10 @@ export function initDeck(): () => void {
   bindRail(heroRoot, sim, signal);
   sim.start();
 
+  const heroHost = heroRoot.querySelector<HTMLElement>('[data-stage-host]');
+  const overlayRo = heroHost ? new ResizeObserver(() => placeOverlay(heroHost, canvas)) : null;
+  if (heroHost) overlayRo?.observe(heroHost);
+
   const offIO = new IntersectionObserver((entries) => {
     if (document.documentElement.dataset.stage === '3d') return;
     if (entries.some((e) => e.isIntersecting)) sim.start();
@@ -256,9 +303,9 @@ export function initDeck(): () => void {
         return mount && (id === 'hero' || id === 'inside') ? [{ id, el, mount } as const] : [];
       });
       const narrow = window.matchMedia('(max-width: 760px)').matches;
-      const stage = createStage(sim, hosts, {
+      const stage = await createStage(sim, hosts, {
         simple: narrow,
-        dpr: Math.min(window.devicePixelRatio || 1, narrow ? 1.5 : 2),
+        dpr: Math.min(window.devicePixelRatio || 1, narrow ? 1.25 : 2),
         skipGuard: force,
         onSlow: fallback,
         onReady: (id) => {
@@ -268,7 +315,7 @@ export function initDeck(): () => void {
       });
       destroyStage = () => stage.destroy();
       if (import.meta.env.DEV) {
-        (window as unknown as { __espdeckCapture: typeof stage.capture }).__espdeckCapture = stage.capture;
+        Object.assign(window, { __espdeckCapture: stage.capture, __espdeckCorners: stage.corners });
       }
     } catch (err) {
       console.error('[ESPDeck] 3D se nenačetlo, zůstává statický obrázek', err);
@@ -303,6 +350,7 @@ export function initDeck(): () => void {
   return () => {
     ac.abort();
     offIO.disconnect();
+    overlayRo?.disconnect();
     destroyStage?.();
     sim.destroy();
   };

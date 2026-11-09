@@ -52,28 +52,50 @@ export function initMotion(): () => void {
       };
       let active: PartId | null = null;
       let progress = 0;
-      const push = (): void => setExplode(progress, active);
-      ScrollTrigger.create({
-        trigger: inside,
-        start: 'top 62%',
-        end: 'top 6%',
-        scrub: true,
-        onUpdate: (self) => {
-          progress = self.progress;
-          push();
-        },
-      });
-      steps.forEach((step) => {
+      let travel = 0;
+      const push = (): void => setExplode(progress, travel, active);
+      const mm = gsap.matchMedia();
+      // Od 1024 px je scéna přilepená a kamera jede přes celou sekci.
+      mm.add('(min-width: 1024px)', () => {
         ScrollTrigger.create({
-          trigger: step,
-          start: 'top 58%',
-          end: 'bottom 42%',
-          onToggle: (self) => {
-            if (self.isActive) {
-              active = (step.dataset.insideStep ?? null) as PartId | null;
-              setStep(step);
-              push();
-            }
+          trigger: inside,
+          start: 'top 70%',
+          end: 'bottom bottom',
+          scrub: 0.5,
+          onUpdate: (self) => {
+            progress = Math.min(1, self.progress / 0.34);
+            travel = Math.max(0, (self.progress - 0.34) / 0.66);
+            push();
+          },
+        });
+        steps.forEach((step) => {
+          ScrollTrigger.create({
+            trigger: step,
+            start: 'top 58%',
+            end: 'bottom 42%',
+            onToggle: (self) => {
+              if (self.isActive) {
+                active = (step.dataset.insideStep ?? null) as PartId | null;
+                setStep(step);
+                push();
+              }
+            },
+          });
+        });
+      });
+      // Pod 1024 px scéna plyne se stránkou, rozklad proběhne během jejího průjezdu obrazovkou.
+      mm.add('(max-width: 1023.98px)', () => {
+        const host = inside.querySelector('[data-stage-host]');
+        ScrollTrigger.create({
+          trigger: host,
+          start: 'top 88%',
+          end: 'bottom 30%',
+          scrub: 0.5,
+          onUpdate: (self) => {
+            progress = Math.min(1, self.progress / 0.6);
+            travel = Math.max(0, (self.progress - 0.6) / 0.4);
+            active = null;
+            push();
           },
         });
       });

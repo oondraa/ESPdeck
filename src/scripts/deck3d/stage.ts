@@ -6,6 +6,7 @@
 import {
   ACESFilmicToneMapping,
   BackSide,
+  Box3,
   BoxGeometry,
   Color,
   DirectionalLight,
@@ -21,6 +22,7 @@ import {
   SRGBColorSpace,
   Vector3,
   WebGLRenderer,
+  type Object3D,
   type Texture,
 } from 'three';
 import type { DeckSim } from '../deck-sim';
@@ -38,6 +40,7 @@ export interface StageHost {
 export interface StageHandle {
   destroy(): void;
   capture(host: HostId, explode: number, width: number, height: number): string;
+  corners(): readonly (readonly [number, number])[];
 }
 
 interface StageOptions {
@@ -70,17 +73,37 @@ function studioEnvironment(renderer: WebGLRenderer): Texture {
   return rt.texture;
 }
 
-const PART_FOCUS: Readonly<Record<PartId, Vector3>> = {
-  esp: new Vector3(0, 0.6, -2.4),
-  oled: new Vector3(-1.9, 1.2, -0.2),
-  enc: new Vector3(2.2, 1.2, 0),
-  pads: new Vector3(0, 0.4, 2),
-};
+const nextTask = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
+interface Rect {
+  l: number;
+  t: number;
+  r: number;
+  b: number;
+}
+
+const overlaps = (a: Rect, b: Rect): boolean => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+
+/** Protíná úsečka obdélník? Stačí vzorkování, štítků je málo a úsečky krátké. */
+function segmentHits(x1: number, y1: number, x2: number, y2: number, r: Rect): boolean {
+  for (let i = 0; i <= 24; i++) {
+    const k = i / 24;
+    const x = x1 + (x2 - x1) * k;
+    const y = y1 + (y2 - y1) * k;
+    if (x > r.l && x < r.r && y > r.t && y < r.b) return true;
+  }
+  return false;
+}
+
+/** Pořadí rozkladu: nejdřív horní vrstva (plošky), jako poslední spodní (DevKit). */
+const LAYER_DELAY: Readonly<Record<PartId, number>> = { pads: 0, enc: 0.1, oled: 0.2, esp: 0.3 };
+const TAG_IDS: readonly PartId[] = ['esp', 'oled', 'enc', 'pads'];
+const TAN_HALF_FOV = Math.tan((24 * Math.PI) / 360);
 
 const easeSpread = (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
-export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: StageOptions): StageHandle {
-  const renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+export async function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: StageOptions): Promise<StageHandle> {
+  const renderer = new WebGLRenderer({ antialias: !opts.simple, alpha: true, powerPreference: 'high-performance' });
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
@@ -92,21 +115,23 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
   canvas.className = 'stage-canvas';
   canvas.setAttribute('aria-hidden', 'true');
 
+  await nextTask();
   const scene = new Scene();
   const envTex = studioEnvironment(renderer);
+  await nextTask();
 
   const key = new DirectionalLight(0xfff3e6, 1.5);
-  key.position.set(-6, 15, 5);
+  key.position.set(-9, 24, 8);
   key.castShadow = true;
-  key.shadow.mapSize.set(opts.simple ? 1024 : 2048, opts.simple ? 1024 : 2048);
-  key.shadow.radius = 7;
+  key.shadow.mapSize.set(opts.simple ? 512 : 2048, opts.simple ? 512 : 2048);
+  key.shadow.radius = opts.simple ? 4 : 7;
   key.shadow.bias = -0.0006;
   const sc = key.shadow.camera;
   sc.left = -11;
   sc.right = 11;
   sc.top = 11;
   sc.bottom = -11;
-  sc.far = 40;
+  sc.far = 60;
   scene.add(key);
 
   const floor = new Mesh(new PlaneGeometry(60, 60), new ShadowMaterial({ opacity: 0.32 }));
@@ -116,7 +141,7 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
   scene.add(floor);
 
   const screenTex = createScreenTexture(sim.canvas);
-  const model: DeckModel = buildDeck(screenTex, opts.simple);
+  const model: DeckModel = await buildDeck(screenTex, opts.simple);
   scene.add(model.root);
   // Intenzitu odrazů řídí materiál, a to Three.js umí jen s envMap přímo na materiálu.
   model.root.traverse((o) => {
@@ -129,8 +154,11 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
     }
   });
 
-  const camera = new PerspectiveCamera(24, 4 / 3, 1, 90);
+  const camera = new PerspectiveCamera(24, 4 / 3, 1, 120);
   const lookAt = new Vector3();
+  // Shadery se překládají mimo hlavní vlákno, kde to prohlížeč umí.
+  await renderer.compileAsync(scene, camera);
+  await nextTask();
 
   /* ---------- Stav ---------- */
 
@@ -151,7 +179,9 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
   let frames = 0;
   let renderMs = 0;
   let guarded = !opts.skipGuard;
-  let readyFired = new Set<HostId>();
+  const readyFired = new Set<HostId>();
+  const lastCorners: [number, number][] = [];
+  const tagSlot = new Map<PartId, number>();
 
   const invalidate = (): void => {
     dirty = true;
@@ -169,29 +199,49 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
     invalidate();
   };
 
-  const applyExplode = (): void => {
-    const p = active?.id === 'inside' ? easeSpread(explodeState.progress) : 0;
-    model.wires.visible = p < 0.03;
+  const layerAmount = (id: PartId, p: number): number =>
+    easeSpread(Math.min(1, Math.max(0, (p - LAYER_DELAY[id]) / 0.7)));
+
+  const pose = (p: number): void => {
+    model.wires.visible = p < 0.02;
     for (const part of model.parts) {
-      part.root.position.copy(part.home).addScaledVector(part.spread, p);
-      for (const l of part.layers) l.obj.position.copy(l.base).addScaledVector(l.lift, p);
+      const e = layerAmount(part.id, p);
+      part.root.position.copy(part.home).addScaledVector(part.spread, e);
+      for (const l of part.layers) l.obj.position.copy(l.base).addScaledVector(l.lift, e);
     }
-    model.pads.forEach((pad) => pad.root.position.copy(pad.home).addScaledVector(pad.spread, p));
+    const e = layerAmount('pads', p);
+    model.pads.forEach((pad) => pad.root.position.copy(pad.home).addScaledVector(pad.spread, e));
   };
 
-  const placeCamera = (id: HostId, explode: number, focus: PartId | null): void => {
-    const narrow = camera.aspect < 1.15;
-    const distance = narrow ? 1.28 : 1;
-    if (id === 'hero') {
-      camera.position.set(parallaxX * 0.9, 16.6 * distance - parallaxY * 0.35, 12.8 * distance);
-      lookAt.set(0, 0, -0.05);
-    } else {
-      const e = easeSpread(explode);
-      camera.position.set(0.8 * e, (16.6 + 4.8 * e) * distance, (12.8 + 6.8 * e) * distance);
-      lookAt.set(0, 0.9 * e, 0.1);
-      if (focus) lookAt.lerp(PART_FOCUS[focus], 0.28);
-    }
+  const heroDistance = (): number => (camera.aspect < 1.15 ? 26.8 : 20.96);
+
+  /** Vzdálenost, ze které se rozložený sloupec vejde na výšku i na šířku. */
+  const fitDistance = (): number => Math.max(14 / (2 * TAN_HALF_FOV), 12.5 / (2 * TAN_HALF_FOV * camera.aspect));
+
+  const orbit = (azimuth: number, elevation: number, distance: number): void => {
+    camera.position.set(
+      lookAt.x + Math.sin(azimuth) * Math.cos(elevation) * distance,
+      lookAt.y + Math.sin(elevation) * distance,
+      lookAt.z + Math.cos(azimuth) * Math.cos(elevation) * distance,
+    );
     camera.lookAt(lookAt);
+  };
+
+  const placeCamera = (id: HostId, explode: number, travel: number): void => {
+    if (id === 'hero') {
+      const scale = heroDistance() / 20.96;
+      key.shadow.intensity = 1;
+      lookAt.set(0, 0, -0.05);
+      camera.position.set(parallaxX * 0.9, 16.6 * scale - parallaxY * 0.35, 12.8 * scale);
+      camera.lookAt(lookAt);
+      return;
+    }
+    const e = easeSpread(explode);
+    // Vrstvy nad sebou by si navzájem stínily, proto stín s rozkladem slábne.
+    key.shadow.intensity = 1 - 0.85 * e;
+    // Z pohledu shora se kamera plynule sklopí a pak pomalu stoupá podél sloupce vrstev.
+    lookAt.set(0, e * (3.9 + (travel - 0.5) * 1.4), -0.05 * (1 - e));
+    orbit(-0.4 * e, 0.914 + (0.42 - 0.914) * e, heroDistance() + (fitDistance() - heroDistance()) * e);
   };
 
   /* ---------- Hotspoty a popisky ---------- */
@@ -232,30 +282,97 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
     }
   };
 
+  const box = new Box3();
+  const corner = new Vector3();
+
+  const screenRect = (objects: readonly Object3D[], host: StageHost): Rect => {
+    const rect: Rect = { l: Infinity, t: Infinity, r: -Infinity, b: -Infinity };
+    for (const obj of objects) {
+      box.setFromObject(obj);
+      for (let i = 0; i < 8; i++) {
+        corner.set(i & 1 ? box.max.x : box.min.x, i & 2 ? box.max.y : box.min.y, i & 4 ? box.max.z : box.min.z);
+        const c = project(corner, host);
+        rect.l = Math.min(rect.l, c.x);
+        rect.t = Math.min(rect.t, c.y);
+        rect.r = Math.max(rect.r, c.x);
+        rect.b = Math.max(rect.b, c.y);
+      }
+    }
+    return rect;
+  };
+
   const layoutTags = (): void => {
     if (!active || active.id !== 'inside') return;
     const host = active;
-    const reveal = explodeState.progress > 0.08;
-    host.el.querySelectorAll<HTMLElement>('[data-tag]').forEach((el) => {
-      const id = el.dataset.tag as PartId;
-      if (id === 'pads') {
-        const a = model.pads[2];
-        if (!a) return;
-        a.root.getWorldPosition(world);
-      } else {
-        const part = model.parts.find((p) => p.id === id);
-        if (!part) return;
-        world.copy(part.anchor);
-        part.root.localToWorld(world);
+    const W = host.mount.clientWidth;
+    const H = host.mount.clientHeight;
+    const reveal = explodeState.progress > 0.62;
+    const rects = new Map<PartId, Rect>();
+    if (reveal) {
+      for (const part of model.parts) rects.set(part.id, screenRect([part.root], host));
+      rects.set('pads', screenRect(model.pads.map((p) => p.root), host));
+    }
+    const placed: Rect[] = [];
+    const GAP = 16;
+    const MARGIN = 6;
+
+    for (const id of TAG_IDS) {
+      const el = host.el.querySelector<HTMLElement>(`[data-tag="${id}"]`);
+      const line = host.el.querySelector<SVGLineElement>(`[data-leader="${id}"]`);
+      if (!el || !line) continue;
+      const target = rects.get(id);
+      let done = false;
+      if (reveal && target) {
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        const cy = (target.t + target.b) / 2 - h / 2;
+        const cx = (target.l + target.r) / 2 - w / 2;
+        const slots: readonly (readonly [number, number])[] = [
+          [target.r + GAP, cy],
+          [target.l - GAP - w, cy],
+          [target.r + GAP, target.t],
+          [target.l - GAP - w, target.t],
+          [target.r + GAP, target.b - h],
+          [target.l - GAP - w, target.b - h],
+          [cx, target.t - GAP - h],
+          [cx, target.b + GAP],
+        ];
+        // Předchozí poloha má přednost, aby štítek při scrollu nepřeskakoval.
+        const prev = tagSlot.get(id);
+        const order = prev === undefined ? slots.map((_, i) => i) : [prev, ...slots.map((_, i) => i).filter((i) => i !== prev)];
+        for (const i of order) {
+          const [x, y] = slots[i] as readonly [number, number];
+          const r: Rect = { l: x, t: y, r: x + w, b: y + h };
+          if (r.l < MARGIN || r.t < MARGIN || r.r > W - MARGIN || r.b > H - MARGIN) continue;
+          const pad = 4;
+          const grown: Rect = { l: r.l - pad, t: r.t - pad, r: r.r + pad, b: r.b + pad };
+          if ([...rects.values()].some((other) => overlaps(grown, other))) continue;
+          if (placed.some((other) => overlaps(grown, other))) continue;
+          const tx = Math.max(r.l, Math.min(r.r, (target.l + target.r) / 2));
+          const ty = Math.max(r.t, Math.min(r.b, (target.t + target.b) / 2));
+          const ex = Math.max(target.l, Math.min(target.r, tx));
+          const ey = Math.max(target.t, Math.min(target.b, ty));
+          let blocked = false;
+          for (const [otherId, other] of rects) {
+            if (otherId !== id && segmentHits(tx, ty, ex, ey, other)) blocked = true;
+          }
+          if (blocked || placed.some((other) => segmentHits(tx, ty, ex, ey, other))) continue;
+          el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+          line.setAttribute('x1', String(tx));
+          line.setAttribute('y1', String(ty));
+          line.setAttribute('x2', String(ex));
+          line.setAttribute('y2', String(ey));
+          placed.push(r);
+          tagSlot.set(id, i);
+          done = true;
+          break;
+        }
       }
-      const c = project(world, host);
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-      const x = Math.max(6, Math.min(host.mount.clientWidth - w - 6, c.x - w / 2));
-      const y = Math.max(6, Math.min(host.mount.clientHeight - h - 6, c.y - h - 8));
-      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      el.toggleAttribute('data-on', reveal && (explodeState.active === null || explodeState.active === id));
-    });
+      // Když se štítek nikam nevejde, schová se. Stejný údaj je v seznamu vedle scény.
+      el.toggleAttribute('data-on', done);
+      el.toggleAttribute('data-active', done && explodeState.active === id);
+      line.toggleAttribute('data-on', done);
+    }
   };
 
   /* ---------- Smyčka ---------- */
@@ -271,9 +388,6 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
     knobPress = damp(knobPress, knobPressTarget, 0.4);
     let moving = knobAngle !== prevKnob || knobPress !== knobPressTarget;
     model.encoder.knob.rotation.y = -knobAngle;
-    const knobBase = model.encoder.layers[1]?.base.y ?? 1;
-    const lift = (model.encoder.layers[1]?.lift.y ?? 0) * (active.id === 'inside' ? easeSpread(explodeState.progress) : 0);
-    model.encoder.knob.position.y = knobBase + lift - knobPress * 0.09;
 
     model.pads.forEach((pad, i) => {
       const cur = padDown[i] ?? 0;
@@ -293,9 +407,9 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
 
     if (dirty || moving) {
       dirty = false;
-      applyExplode();
-      const focus = active.id === 'inside' ? explodeState.active : null;
-      placeCamera(active.id, explodeState.progress, focus);
+      pose(active.id === 'inside' ? explodeState.progress : 0);
+      model.encoder.knob.position.y -= knobPress * 0.09;
+      placeCamera(active.id, explodeState.progress, explodeState.travel);
       const t0 = performance.now();
       renderer.render(scene, camera);
       const spent = performance.now() - t0;
@@ -508,22 +622,27 @@ export function createStage(sim: DeckSim, hosts: readonly StageHost[], opts: Sta
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      const e = easeSpread(explode);
-      model.wires.visible = e < 0.03;
-      for (const part of model.parts) {
-        part.root.position.copy(part.home).addScaledVector(part.spread, e);
-        for (const l of part.layers) l.obj.position.copy(l.base).addScaledVector(l.lift, e);
-      }
-      model.pads.forEach((pad) => pad.root.position.copy(pad.home).addScaledVector(pad.spread, e));
+      pose(explode);
       parallaxX = 0;
       parallaxY = 0;
-      placeCamera(hostId, explode, null);
+      placeCamera(hostId, explode, 0.5);
+      // Na statickém obrázku nesmí být konkrétní čas, displej je zhasnutý.
+      const plane = model.oled.displayPlane;
+      plane.visible = false;
       renderer.render(scene, camera);
       const url = canvas.toDataURL('image/png');
+      plane.visible = true;
+      plane.updateWorldMatrix(true, false);
+      lastCorners.length = 0;
+      for (const [x, y] of [[-1.65, 0.825], [1.65, 0.825], [1.65, -0.825], [-1.65, -0.825]] as const) {
+        corner.set(x, y, 0).applyMatrix4(plane.matrixWorld).project(camera);
+        lastCorners.push([(corner.x + 1) / 2, (1 - corner.y) / 2]);
+      }
       renderer.setPixelRatio(prevRatio);
       active = prevActive;
       size();
       return url;
     },
+    corners: () => lastCorners,
   };
 }
