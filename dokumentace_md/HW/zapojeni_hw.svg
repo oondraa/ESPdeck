@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="482" height="340" preserveAspectRatio="xMinYMin meet" viewBox="0 0 482 340" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="482" height="340"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-340)" style="clip-path: url(#clip)">
+		<g transform="">
+			<g transform="">
+				<rect x="168" y="46" width="132" height="272" rx="6" ry="6" style="stroke: rgb(7%,25%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(12%,37%,22%); fill-rule: evenodd;"/>
+				<rect x="182" y="252" width="62" height="52" rx="2" ry="2" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(78%,80%,81%); fill-rule: evenodd;"/>
+				<text x="194.310791015625" y="282" style="font-family: Segoe UI; font-weight: bold; font-size: 8.5px;fill: rgb(11%,11%,12%); stroke:none;" transform="translate(0,564) scale(1,-1)">ESP32-S3</text>
+				<text x="189.27802734375" y="271" style="font-family: Segoe UI, sans-serif; font-size: 6.8px;fill: rgb(11%,11%,12%); stroke:none;" transform="translate(0,542) scale(1,-1)">WROOM-1 N16</text>
+				<rect x="220.0" y="40" width="28.0" height="12" rx="2" ry="2" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,55%,57%); fill-rule: evenodd;"/>
+				<text x="214.9216796875" y="56" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,112) scale(1,-1)">USB (CH9102)</text>
+				<text x="182.4521484375" y="325" style="font-family: Segoe UI; font-weight: bold; font-size: 8.5px;fill: rgb(11%,11%,12%); stroke:none;" transform="translate(0,650) scale(1,-1)">LaskaKit ESP32-S3-DevKit</text>
+				<rect x="297" y="237" width="10" height="54" rx="2" ry="2" style="stroke: rgb(78%,78%,80%); stroke-linecap: butt; stroke-width: 0.6; fill: rgb(94%,94%,94%); fill-rule: evenodd;"/>
+				<text x="276.15546875" y="295" style="font-family: Segoe UI; font-weight: 600; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,590) scale(1,-1)">μŠup</text>
+				<text x="280.783984375" y="279.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,559) scale(1,-1)">3V3</text>
+				<text x="280.783984375" y="267.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,535) scale(1,-1)">GND</text>
+				<text x="262.090625" y="255.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,511) scale(1,-1)">IO42 SDA</text>
+				<text x="265.829296875" y="243.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,487) scale(1,-1)">IO2 SCL</text>
+				<text x="230.3875" y="228" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(81%,90%,83%); stroke:none;" transform="translate(0,456) scale(1,-1)">napájení: IO47 = HIGH</text>
+				<rect x="372" y="222" width="90" height="82" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(4%,23%,43%); fill-rule: evenodd;"/>
+				<rect x="386" y="236" width="68" height="54" rx="1" ry="1" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(0%,0%,0%); fill-rule: evenodd;"/>
+				<text x="402.13134765625" y="260" style="font-family: Consolas, monospace; font-size: 13px;fill: rgb(94%,94%,94%); stroke:none;" transform="translate(0,520) scale(1,-1)">12:34</text>
+				<text x="369.53154296875" y="309" style="font-family: Segoe UI; font-weight: bold; font-size: 7.6px;fill: rgb(11%,11%,12%); stroke:none;" transform="translate(0,618) scale(1,-1)">OLED 1,3" SH1106 128×64</text>
+				<text x="355.422314453125" y="213" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,426) scale(1,-1)">I²C 0x3C · 400 kHz · pull-up 10 kΩ na modulu</text>
+				<path d="M 307,282 L 372,282 Z" style="stroke: rgb(87%,21%,17%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="307" cy="282" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(87%,21%,17%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="282" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(87%,21%,17%); fill-rule: evenodd;"/>
+				<text x="334.0625" y="285.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,571) scale(1,-1)">3V3</text>
+				<text x="375" y="279.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,559) scale(1,-1)">VCC</text>
+				<path d="M 307,270 L 372,270 Z" style="stroke: rgb(11%,11%,12%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="307" cy="270" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(11%,11%,12%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="270" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(11%,11%,12%); fill-rule: evenodd;"/>
+				<text x="332.6671875" y="273.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,547) scale(1,-1)">GND</text>
+				<text x="375" y="267.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,535) scale(1,-1)">GND</text>
+				<path d="M 307,258 L 372,258 Z" style="stroke: rgb(10%,45%,90%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="307" cy="258" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(10%,45%,90%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="258" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(10%,45%,90%); fill-rule: evenodd;"/>
+				<text x="333.4921875" y="261.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,523) scale(1,-1)">SDA</text>
+				<text x="375" y="255.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,511) scale(1,-1)">SDA</text>
+				<path d="M 307,246 L 372,246 Z" style="stroke: rgb(88%,69%,0%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="307" cy="246" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(88%,69%,0%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="246" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(88%,69%,0%); fill-rule: evenodd;"/>
+				<text x="334.3125" y="249.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,499) scale(1,-1)">SCL</text>
+				<text x="375" y="243.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,487) scale(1,-1)">SCL</text>
+				<rect x="295" y="165" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="280.783984375" y="165.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,331) scale(1,-1)">3V3</text>
+				<rect x="295" y="153" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="280.783984375" y="153.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,307) scale(1,-1)">GND</text>
+				<rect x="295" y="141" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="277.0453125" y="141.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,283) scale(1,-1)">IO15</text>
+				<rect x="295" y="129" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="277.0453125" y="129.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,259) scale(1,-1)">IO16</text>
+				<rect x="295" y="117" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="277.0453125" y="117.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,235) scale(1,-1)">IO17</text>
+				<rect x="372" y="104" width="90" height="80" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(10%,30%,62%); fill-rule: evenodd;"/>
+				<circle cx="430" cy="144" r="20" style="stroke: rgb(55%,55%,57%); stroke-linecap: butt; stroke-width: 2; fill: rgb(22%,22%,23%); fill-rule: evenodd;"/>
+				<circle cx="430" cy="144" r="7" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(78%,78%,80%); fill-rule: evenodd;"/>
+				<text x="367.28271484375" y="189" style="font-family: Segoe UI; font-weight: bold; font-size: 7.6px;fill: rgb(11%,11%,12%); stroke:none;" transform="translate(0,378) scale(1,-1)">Rotační enkodér s tlačítkem</text>
+				<text x="373.383544921875" y="95" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,190) scale(1,-1)">20 pulzů/ot. · RC filtr na modulu</text>
+				<path d="M 300,168 L 372,168 Z" style="stroke: rgb(87%,21%,17%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="300" cy="168" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(87%,21%,17%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="168" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(87%,21%,17%); fill-rule: evenodd;"/>
+				<text x="317.8953125" y="171.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,343) scale(1,-1)">3V3 (ne 5 V!)</text>
+				<text x="375" y="165.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,331) scale(1,-1)">5V</text>
+				<path d="M 300,156 L 372,156 Z" style="stroke: rgb(11%,11%,12%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="300" cy="156" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(11%,11%,12%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="156" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(11%,11%,12%); fill-rule: evenodd;"/>
+				<text x="329.1671875" y="159.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,319) scale(1,-1)">GND</text>
+				<text x="375" y="153.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,307) scale(1,-1)">GND</text>
+				<path d="M 300,144 L 372,144 Z" style="stroke: rgb(18%,61%,30%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="300" cy="144" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,61%,30%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="144" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,61%,30%); fill-rule: evenodd;"/>
+				<text x="333.9359375" y="147.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,295) scale(1,-1)">A</text>
+				<text x="375" y="141.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,283) scale(1,-1)">S1</text>
+				<path d="M 300,132 L 372,132 Z" style="stroke: rgb(60%,60%,62%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="300" cy="132" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(60%,60%,62%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="132" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(60%,60%,62%); fill-rule: evenodd;"/>
+				<text x="334.165625" y="135.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,271) scale(1,-1)">B</text>
+				<text x="375" y="129.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,259) scale(1,-1)">S2</text>
+				<path d="M 300,120 L 372,120 Z" style="stroke: rgb(94%,54%,0%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="300" cy="120" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(94%,54%,0%); fill-rule: evenodd;"/>
+				<circle cx="372" cy="120" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(94%,54%,0%); fill-rule: evenodd;"/>
+				<text x="325.709375" y="123.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,247) scale(1,-1)">tlačítko</text>
+				<text x="375" y="117.5" style="font-family: Consolas, monospace; font-size: 6px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,235) scale(1,-1)">Key</text>
+				<text x="12.568359375" y="290" style="font-family: Segoe UI; font-weight: bold; font-size: 8px;fill: rgb(11%,11%,12%); stroke:none;" transform="translate(0,580) scale(1,-1)">Dotykové plošky</text>
+				<rect x="168" y="259" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="176" y="259.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,519) scale(1,-1)">IO4</text>
+				<circle cx="44" cy="262" r="11" style="stroke: rgb(64%,38%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(85%,54%,29%); fill-rule: evenodd;"/>
+				<text x="39.71796875" y="259" style="font-family: Segoe UI; font-weight: bold; font-size: 7.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,518) scale(1,-1)">P1</text>
+				<path d="M 56,262 L 168,262 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="56" cy="262" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<circle cx="168" cy="262" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<text x="108.5984375" y="265.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,531) scale(1,-1)">T4</text>
+				<rect x="168" y="229" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="176" y="229.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,459) scale(1,-1)">IO5</text>
+				<circle cx="44" cy="232" r="11" style="stroke: rgb(64%,38%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(85%,54%,29%); fill-rule: evenodd;"/>
+				<text x="39.71796875" y="229" style="font-family: Segoe UI; font-weight: bold; font-size: 7.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,458) scale(1,-1)">P2</text>
+				<path d="M 56,232 L 168,232 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="56" cy="232" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<circle cx="168" cy="232" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<text x="108.5984375" y="235.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,471) scale(1,-1)">T5</text>
+				<rect x="168" y="199" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="176" y="199.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,399) scale(1,-1)">IO6</text>
+				<circle cx="44" cy="202" r="11" style="stroke: rgb(64%,38%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(85%,54%,29%); fill-rule: evenodd;"/>
+				<text x="39.71796875" y="199" style="font-family: Segoe UI; font-weight: bold; font-size: 7.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,398) scale(1,-1)">P3</text>
+				<path d="M 56,202 L 168,202 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="56" cy="202" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<circle cx="168" cy="202" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<text x="108.5984375" y="205.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,411) scale(1,-1)">T6</text>
+				<rect x="168" y="169" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="176" y="169.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,339) scale(1,-1)">IO7</text>
+				<circle cx="44" cy="172" r="11" style="stroke: rgb(64%,38%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(85%,54%,29%); fill-rule: evenodd;"/>
+				<text x="39.71796875" y="169" style="font-family: Segoe UI; font-weight: bold; font-size: 7.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,338) scale(1,-1)">P4</text>
+				<path d="M 56,172 L 168,172 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="56" cy="172" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<circle cx="168" cy="172" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<text x="108.5984375" y="175.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,351) scale(1,-1)">T7</text>
+				<rect x="168" y="139" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="176" y="139.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,279) scale(1,-1)">IO8</text>
+				<circle cx="44" cy="142" r="11" style="stroke: rgb(64%,38%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(85%,54%,29%); fill-rule: evenodd;"/>
+				<text x="39.71796875" y="139" style="font-family: Segoe UI; font-weight: bold; font-size: 7.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,278) scale(1,-1)">P5</text>
+				<path d="M 56,142 L 168,142 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="56" cy="142" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<circle cx="168" cy="142" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<text x="108.5984375" y="145.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,291) scale(1,-1)">T8</text>
+				<rect x="168" y="109" width="5" height="6" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(83%,68%,21%); fill-rule: evenodd;"/>
+				<text x="176" y="109.5" style="font-family: Consolas, monospace; font-size: 6.8px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,219) scale(1,-1)">IO1</text>
+				<circle cx="44" cy="112" r="11" style="stroke: rgb(64%,38%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(85%,54%,29%); fill-rule: evenodd;"/>
+				<text x="39.71796875" y="109" style="font-family: Segoe UI; font-weight: bold; font-size: 7.2px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,218) scale(1,-1)">P6</text>
+				<path d="M 56,112 L 168,112 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: round; stroke-width: 2.2;"/>
+				<circle cx="56" cy="112" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<circle cx="168" cy="112" r="2.3" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(55%,26%,67%); fill-rule: evenodd;"/>
+				<text x="108.5984375" y="115.5" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,231) scale(1,-1)">T1</text>
+				<text x="22.12138671875" y="90" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,180) scale(1,-1)">ploška 6 na IO1:</text>
+				<text x="17.124755859374996" y="82" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,164) scale(1,-1)">IO10 není vyvedený</text>
+				<path d="M 8,20.5 L 20,20.5 Z" style="stroke: rgb(87%,21%,17%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="23" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">3V3</text>
+				<path d="M 45.875,20.5 L 57.875,20.5 Z" style="stroke: rgb(11%,11%,12%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="60.875" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">GND</text>
+				<path d="M 86.540625,20.5 L 98.540625,20.5 Z" style="stroke: rgb(10%,45%,90%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="101.540625" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">I²C SDA</text>
+				<path d="M 135.31875,20.5 L 147.31875,20.5 Z" style="stroke: rgb(88%,69%,0%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="150.31875000000002" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">I²C SCL</text>
+				<path d="M 182.45625,20.5 L 194.45625,20.5 Z" style="stroke: rgb(18%,61%,30%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="197.45625" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">enkodér A</text>
+				<path d="M 238.578125,20.5 L 250.578125,20.5 Z" style="stroke: rgb(60%,60%,62%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="253.578125" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">enkodér B</text>
+				<path d="M 294.240625,20.5 L 306.240625,20.5 Z" style="stroke: rgb(94%,54%,0%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="309.240625" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">tlačítko</text>
+				<path d="M 341.821875,20.5 L 353.821875,20.5 Z" style="stroke: rgb(55%,26%,67%); stroke-linecap: butt; stroke-width: 2.2;"/>
+				<text x="356.82187500000003" y="18" style="font-family: Segoe UI, sans-serif; font-size: 6.4px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,36) scale(1,-1)">dotyk</text>
+				<text x="8" y="7" style="font-family: Segoe UI, sans-serif; font-size: 6.2px;fill: rgb(43%,43%,45%); stroke:none;" transform="translate(0,14) scale(1,-1)">Barvy vodičů jen pro přehlednost · logické zapojení, ne poloha pinů na desce</text>
+			</g>
+		</g>
+	</g>
+</svg>

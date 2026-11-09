@@ -1,0 +1,1 @@
+Vždy při tomto projektu se ujisti že máš akutální verzi repozitáře pracuje na něm hodně lidí
